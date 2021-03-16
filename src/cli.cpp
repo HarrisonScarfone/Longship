@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <sstream>
 #include <stdio.h>
+#include <math.h>
 
 #include "cli.h"
 #include "boardutils.h"
@@ -68,12 +69,10 @@ void Board::arrayToBitboards(){
                 tmp.append("0");
             }
 
-            int index = (i * 8) + j;
-            tmp.replace(index, index + 1, "1");
+            int index = 63 - ((i * 8) + j);
+            tmp[index] = '1';
 
-            uint64_t tmpBinary;
-            std::istringstream iss(tmp);
-            iss >> tmpBinary;
+            uint64_t tmpBinary = stringTo64Bit(tmp);
 
             switch(piece)
             {
@@ -128,28 +127,33 @@ void Board::printuint64InBinary(uint64_t number)
 
 void Board::showBitboardValues(){
     printuint64InBinary(bp);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(br);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(bn);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(bb);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(bq);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(bk);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(wp);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(wr);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(wn);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(wb);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(wq);
-    std::cout << "\n";
+    newLine();
     printuint64InBinary(wk);
+    newLine();
+}
+
+void Board::newLine()
+{
     std::cout << "\n";
 }
 
@@ -165,4 +169,72 @@ void Board::printArrayBoard()
         std::cout << "|" << "\n";
     }
     std::cout << "---------------------------------" << "\n";
+}
+
+void Board::updateFromBitboard()
+{
+    for (int i = 0; i < 64; i++)
+    {
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+        if (((bp>>i)&1)==1)
+        {
+            board[i/8][i%8] = "p";
+        }
+    }
+}
+
+std::uint64_t Board::stringTo64Bit(std::string inString)
+{
+    uint64_t tmpVal = 0;
+    for (int i = 0; i < 64 ; i++)
+    {
+        if (inString[63 - i] == '1')
+        {
+            tmpVal += 1 * pow(2.0, i);
+        }
+    }
+    return tmpVal;
 }
