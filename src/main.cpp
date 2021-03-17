@@ -10,5 +10,7 @@ int main(){
     b.printArrayBoard();
     b.arrayToBitboards();
     b.showBitboardValues();
+    b.updateFromBitboard();
+    b.printArrayBoard();
 
 }

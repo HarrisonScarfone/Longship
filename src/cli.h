@@ -4,6 +4,25 @@
 #include <cstdint>
 #include <string>
 
+namespace Game
+{
+    struct Bitboards
+    {
+        uint64_t wp;
+        uint64_t wr;
+        uint64_t wn;
+        uint64_t wb;
+        uint64_t wq;
+        uint64_t wk;
+        uint64_t bp;
+        uint64_t br;
+        uint64_t bn;
+        uint64_t bb;
+        uint64_t bq;
+        uint64_t bk;
+    };
+}
+
 class Board
 {
     public:
@@ -17,6 +36,9 @@ class Board
         void printArrayBoard();
         void showBitboardValues();
         void printuint64InBinary(uint64_t number);
+        void newLine();
+        void updateFromBitboard();
+        Game::Bitboards getBitboards();
 
 };
 

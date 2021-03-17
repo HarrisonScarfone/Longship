@@ -125,6 +125,11 @@ void Board::printuint64InBinary(uint64_t number)
     putc((number & 1) ? '1' : '0', stdout);
 }
 
+void Board::newLine()
+{
+    std::cout << "\n";
+}
+
 void Board::showBitboardValues(){
     printuint64InBinary(bp);
     newLine();
@@ -152,11 +157,6 @@ void Board::showBitboardValues(){
     newLine();
 }
 
-void Board::newLine()
-{
-    std::cout << "\n";
-}
-
 void Board::printArrayBoard()
 {
     for (int i = 0; i < 8; i++)
@@ -175,53 +175,53 @@ void Board::updateFromBitboard()
 {
     for (int i = 0; i < 64; i++)
     {
-        if (((bp>>i)&1)==1)
+        if (((wp>>i)&1)==1)
         {
-            board[i/8][i%8] = "p";
+            board[i/8][i%8] = "P";
+        }
+        if (((wr>>i)&1)==1)
+        {
+            board[i/8][i%8] = "R";
+        }
+        if (((wn>>i)&1)==1)
+        {
+            board[i/8][i%8] = "N";
+        }
+        if (((wb>>i)&1)==1)
+        {
+            board[i/8][i%8] = "B";
+        }
+        if (((wq>>i)&1)==1)
+        {
+            board[i/8][i%8] = "Q";
+        }
+        if (((wk>>i)&1)==1)
+        {
+            board[i/8][i%8] = "K";
         }
         if (((bp>>i)&1)==1)
         {
             board[i/8][i%8] = "p";
         }
-        if (((bp>>i)&1)==1)
+        if (((br>>i)&1)==1)
         {
-            board[i/8][i%8] = "p";
+            board[i/8][i%8] = "r";
         }
-        if (((bp>>i)&1)==1)
+        if (((bn>>i)&1)==1)
         {
-            board[i/8][i%8] = "p";
+            board[i/8][i%8] = "n";
         }
-        if (((bp>>i)&1)==1)
+        if (((bb>>i)&1)==1)
         {
-            board[i/8][i%8] = "p";
+            board[i/8][i%8] = "b";
         }
-        if (((bp>>i)&1)==1)
+        if (((bq>>i)&1)==1)
         {
-            board[i/8][i%8] = "p";
+            board[i/8][i%8] = "q";
         }
-        if (((bp>>i)&1)==1)
+        if (((bk>>i)&1)==1)
         {
-            board[i/8][i%8] = "p";
-        }
-        if (((bp>>i)&1)==1)
-        {
-            board[i/8][i%8] = "p";
-        }
-        if (((bp>>i)&1)==1)
-        {
-            board[i/8][i%8] = "p";
-        }
-        if (((bp>>i)&1)==1)
-        {
-            board[i/8][i%8] = "p";
-        }
-        if (((bp>>i)&1)==1)
-        {
-            board[i/8][i%8] = "p";
-        }
-        if (((bp>>i)&1)==1)
-        {
-            board[i/8][i%8] = "p";
+            board[i/8][i%8] = "k";
         }
     }
 }
@@ -237,4 +237,21 @@ std::uint64_t Board::stringTo64Bit(std::string inString)
         }
     }
     return tmpVal;
+}
+
+Bitboards Board::getBitboards(){
+    Bitboards currBitboards;
+    currBitboards.wp = wp;
+    currBitboards.wr = wr;
+    currBitboards.wn = wn;
+    currBitboards.wb = wb;
+    currBitboards.wq = wq;
+    currBitboards.wk = wk;
+    currBitboards.bp = bp;
+    currBitboards.br = br;
+    currBitboards.bn = bn;
+    currBitboards.bb = bb;
+    currBitboards.bq = bq;
+    currBitboards.bk = bk;
+    return currBitboards;
 }
