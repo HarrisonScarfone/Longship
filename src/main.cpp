@@ -1,16 +1,18 @@
 #include <iostream>
 
-#include "cli.h"
-
+#include "manager.h"
+#include "gamestate.h"
+#include "utilities.h"
 
 int main(){
 
-    Board b = Board();
+    Manager b = Manager();
     b.setBoard();
     b.printArrayBoard();
     b.arrayToBitboards();
-    b.showBitboardValues();
-    b.updateFromBitboard();
+    Gamestate::Bitboards c = b.getBitboards();
+    Utilities::showBitboardValues(c);
+    b.updateArrayFromBitboard(c);
     b.printArrayBoard();
 
 }
