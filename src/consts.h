@@ -5,20 +5,20 @@
 
 namespace Consts
 {
-    const uint64_t FILE_A = 0x8080808080808080;
-    const uint64_t FILE_H=-9187201950435737472L;
-    const uint64_t FILE_AB=217020518514230019L;
-    const uint64_t FILE_GH=-4557430888798830400L;
-    const uint64_t RANK_1=-72057594037927936L;
-    const uint64_t RANK_4=1095216660480L;
-    const uint64_t RANK_5=4278190080L;
-    const uint64_t RANK_8=255L;
-    const uint64_t CENTRE=103481868288L;
-    const uint64_t EXTENDED_CENTRE=66229406269440L;
-    const uint64_t KING_SIDE=-1085102592571150096L;
-    const uint64_t QUEEN_SIDE=1085102592571150095L;
-    const uint64_t KING_B7=460039L;
-    const uint64_t KNIGHT_C6=43234889994L;
+    const uint64_t FILE_A = 0x101010101010101L;
+    const uint64_t FILE_H = 0x8080808080808080L;
+    const uint64_t FILE_AB = 217020518514230019L;
+    const uint64_t FILE_GH = -4557430888798830400L;
+    const uint64_t RANK_1 = -72057594037927936L;
+    const uint64_t RANK_4 = 1095216660480L;
+    const uint64_t RANK_5 = 4278190080L;
+    const uint64_t RANK_8 = 255L;
+    const uint64_t CENTRE = 103481868288L;
+    const uint64_t EXTENDED_CENTRE = 66229406269440L;
+    const uint64_t KING_SIDE = -1085102592571150096L;
+    const uint64_t QUEEN_SIDE = 1085102592571150095L;
+    const uint64_t KING_B7 = 460039L;
+    const uint64_t KNIGHT_C6 = 43234889994L;
 
     const uint64_t RankMasks8[] =/*from rank1 to rank8*/
     {

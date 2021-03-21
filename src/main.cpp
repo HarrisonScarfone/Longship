@@ -19,6 +19,6 @@ int main(){
 
     // Utilities::printuint64InBinary(Consts::RANK_1);
 
-    Moves::possibleMoves(c);
+    Moves::possibleMoves(c, "");
 
 }

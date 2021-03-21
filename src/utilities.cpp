@@ -2,10 +2,16 @@
 #include <string>
 
 #include "gamestate.h"
+#include "utilities.h"
 
 namespace Utilities
 {
     void printuint64InBinary(uint64_t number)
+    {
+        helper(number);
+    }
+
+    void helper(uint64_t number)
     {
         if (number >> 1) {
             printuint64InBinary(number >> 1);
@@ -59,31 +65,30 @@ namespace Utilities
     void uint64AsBoard(uint64_t in)
     {
 
-        std::string binary = "";
+        int count = 0;
+        std::string outString;
+        
+        std::cout << in << "\n";
 
-        while (in != 0)
+        while (count < 64)
         {
+            if (count % 8 == 0)
+            {
+                outString += "\n";
+            }
+
             if (in % 2 == 0)
             {
-                binary = "0" + binary;
+                outString += "0";
             }
             else
             {
-                binary = "1" + binary;
+                outString += "1";
             }
+
             in = in / 2;
+            count++;
         }
-
-        for (int i=0; i < binary.length(); i++)
-        {
-            if (i % 8 == 0)
-            {
-                std::cout << "\n";
-            }
-
-            std::cout << binary.at(i);
-        }
-
-        std::cout << "\n";
+        std::cout << outString << "\n";
     }
 };

@@ -13,6 +13,7 @@ namespace Utilities
     void showBitboardValues(Gamestate::Bitboards &bitboards);
     void showSplitMovestring(std::string inString);
     void uint64AsBoard(uint64_t in);
+    void helper(uint64_t number);
 
 };
 
