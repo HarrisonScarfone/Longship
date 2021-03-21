@@ -3,9 +3,9 @@
 
 #include <cstdint>
 
-namespace consts
+namespace Consts
 {
-    const uint64_t FILE_A=72340172838076673L;
+    const uint64_t FILE_A = 0x8080808080808080;
     const uint64_t FILE_H=-9187201950435737472L;
     const uint64_t FILE_AB=217020518514230019L;
     const uint64_t FILE_GH=-4557430888798830400L;

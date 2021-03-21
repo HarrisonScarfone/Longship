@@ -9,6 +9,7 @@
 #include "manager.h"
 #include "boardutils.h"
 #include "gamestate.h"
+#include "utilities.h"
 
 Manager::Manager()
 {
@@ -32,11 +33,11 @@ void Manager::setBoard()
 {
     std::string tmp_board[8][8] = {
         {"r","n","b","q","k","b","n","r"},
-        {"p","p","p","p","p","p","p","p"},
+        {"p","P","p","p","p","p","p","p"},
         {" "," "," "," "," "," "," "," "},
         {" "," "," "," "," "," "," "," "},
         {" "," "," "," "," "," "," "," "},
-        {" "," "," "," "," "," "," "," "},
+        {" "," "," "," "," "," ","p"," "},
         {"P","P","P","P","P","P","P","P"},
         {"R","N","B","Q","K","B","N","R"}};
 
@@ -108,7 +109,7 @@ void Manager::arrayToBitboards(){
                     black = black | tmpBinary;
                     break;
                 case BoardUtils::q:
-                    q = b | tmpBinary;
+                    q = q | tmpBinary;
                     black = black | tmpBinary;
                     break;
                 case BoardUtils::k:
@@ -207,6 +208,8 @@ Gamestate::Bitboards Manager::getBitboards(){
     currBitboards.b = b;
     currBitboards.q = q;
     currBitboards.k = k;
+    currBitboards.white = white;
+    currBitboards.black = black;
     currBitboards.enpassant = enpassant;
     currBitboards.bkc = bkc;
     currBitboards.bqc = bqc;
