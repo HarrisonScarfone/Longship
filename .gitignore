@@ -1,4 +1,11 @@
+# VSCode compiler/launch/debugging settings
 .vscode
-*.txt
+
+# text file for notes
+notes.txt
+
+# dont push our working executeable
 main
+
+# dont push shell usage utility
 run.sh
