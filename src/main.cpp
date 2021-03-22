@@ -19,7 +19,7 @@ int main(){
 
     // Utilities::printuint64InBinary(Consts::RANK_1);
 
-    Moves::possibleMoves(c, "", 0);
+    Moves::possibleMoves(c, "", 1);
 
     // uint64_t test = 4567;
     // uint64_t reverse = Moves::reverseUint64_t(test);

@@ -22,6 +22,7 @@ namespace Moves
     std::string possibleQueenMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t q);
     std::string possibleKnightMoves(uint64_t notMyPieces, uint64_t n);
     std::string possibleKingMoves(uint64_t notMyPieces, uint64_t k);
+    uint64_t unsafeSpaces(uint64_t occupied, uint64_t theirPawns, uint64_t theirRook, uint64_t theirKnight, uint64_t theirBishop, uint64_t theirQueen, uint64_t theirKing, bool playingWhite);
 
 };
 

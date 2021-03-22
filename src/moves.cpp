@@ -10,6 +10,16 @@
 #include "gamestate.h"
 #include "utilities.h"
 
+/*
+
+Magic Numbers in the file:
+
+- the offsets in the pawn move addition are add/subtract relative to the side and the pawn move
+- the offsets in the king and knight moves are relative to position of the knight in the bitmask used in consts.h
+- used 8s to represent the 8x8 board, fairly obvious where these are used
+
+*/
+
 namespace Moves
 {
     std::string possibleMoves(Gamestate::Bitboards &bitboards, std::string history, bool playingWhite)
@@ -22,7 +32,9 @@ namespace Moves
             (bitboards.p | bitboards.r | bitboards.n | bitboards.b | bitboards.q | bitboards.k);
         uint64_t emptySpaces = ~occupied;
 
-        uint64_t myPieces, theirPieces, notMyPieces, myRook, myBishop, myQueen, myKnight, myKing, myPawns, theirPawns;
+        uint64_t    myPieces, myPawns, myRook, myBishop, myQueen, myKnight, myKing,  
+                    theirPieces, theirPawns, theirRook, theirBishop, theirQueen, theirKnight, theirKing,
+                    notMyPieces;
         
         std::string moves = "";
 
@@ -39,13 +51,18 @@ namespace Moves
 
         capturablePieces = capturablePieces & theirPieces;
         notMyPieces = ~((pieces & myPieces) | (theirPieces & bitboards.k));
+        myPawns = bitboards.p & myPieces;
         myRook = bitboards.r & myPieces;
         myBishop = bitboards.b & myPieces;
         myKnight = bitboards.n & myPieces;
         myQueen = bitboards.q & myPieces;
         myKing = bitboards.k & myPieces;
-        myPawns = bitboards.p & myPieces;
         theirPawns = bitboards.p & theirPieces;
+        theirRook = bitboards.r & theirPieces;
+        theirBishop = bitboards.b & theirPieces;
+        theirKnight = bitboards.n & theirPieces;
+        theirQueen = bitboards.q & theirPieces;
+        theirKing = bitboards.k & theirPieces;
 
         if (playingWhite)
         {
@@ -56,11 +73,6 @@ namespace Moves
             moves = possibleBlackPawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, history);
         }
 
-        Utilities::uint64AsBoard(bitboards.black);
-        Utilities::uint64AsBoard(bitboards.p);
-        Utilities::uint64AsBoard(myPawns);
-        Utilities::uint64AsBoard(theirPawns);
-
         moves = moves +
             possibleRookMoves(occupied, notMyPieces, myRook) + 
             possibleBishopMoves(occupied, notMyPieces, myBishop) + 
@@ -69,6 +81,7 @@ namespace Moves
             possibleKingMoves(notMyPieces, myKing);   
 
         Utilities::showSplitMovestring(moves);
+        Utilities::uint64AsBoard(unsafeSpaces(occupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, playingWhite));
 
         return moves;    
     }
@@ -135,7 +148,6 @@ namespace Moves
             index++;
             if ((possibleMoves >> 1) & 1)
             {   
-                std::cout << index << " ";
                 *moveString += std::to_string(location / 8) + std::to_string(location % 8) + std::to_string(index / 8) + std::to_string(index % 8);  
             }
             possibleMoves = possibleMoves >> 1;
@@ -174,8 +186,6 @@ namespace Moves
 
         uint64_t temp = (horizontal & Consts::RankMasks8[index / 8]) | (vertical & Consts::FileMasks8[index % 8]);
 
-        Utilities::uint64AsBoard(temp);
-
         return temp;
     }
 
@@ -186,8 +196,6 @@ namespace Moves
         uint64_t antidiagonal = ((occupied & Consts::AntiDiagonalMasks[(index / 8) + 7 - (index % 8)]) - (2 * indexBitboard) ^ reverseUint64_t(reverseUint64_t(occupied & Consts::AntiDiagonalMasks[(index / 8) + 7 - (index % 8)]) - (2 * reverseUint64_t(indexBitboard))));
 
         uint64_t temp = (diagonal & Consts::DiagonalMasks[(index / 8) + (index % 8)]) | (antidiagonal & Consts::AntiDiagonalMasks[(index / 8) + 7 - (index % 8)]);
-
-        Utilities::uint64AsBoard(temp);
 
         return temp;
     }
@@ -452,5 +460,123 @@ namespace Moves
         }
 
         return temp;
+    }
+
+    uint64_t unsafeFromPawns(uint64_t theirPawns, bool playingWhite)
+    {
+        if (playingWhite)
+        {
+            return ((theirPawns << 7) & ~Consts::FILE_H) | ((theirPawns << 9) & ~Consts::FILE_A);
+        }
+        else
+        {
+            return ((theirPawns >> 7) & ~Consts::FILE_A) | ((theirPawns >> 9) & ~Consts::FILE_H);
+        }
+    }
+
+    uint64_t unsafeSpaces(uint64_t occupied, uint64_t theirPawns, uint64_t theirRook, uint64_t theirKnight, uint64_t theirBishop, uint64_t theirQueen, uint64_t theirKing, bool playingWhite)
+    {
+        uint64_t unsafe;
+        uint64_t temp;
+        int location;
+
+        /*
+        the variable temp carries all through and used for control calculations at each step
+        note that it is reassigned in each section it is used in this method
+        */
+
+        // pawn capture right | left
+        unsafe = unsafeFromPawns(theirPawns, playingWhite);
+
+        // handle squares controlled by knights
+        location = 0;
+        while (theirKnight > 0)
+        {
+            if (theirKnight & 1)
+            {
+                if (location > 18)
+                {
+                    temp = Consts::KNIGHT_SPAN << (location - 18);
+                }
+                else
+                {
+                    temp = Consts::KNIGHT_SPAN >> (18 - location);
+                }
+
+                if ((location % 8) < 4)
+                {
+                    temp = temp & ~Consts::FILE_GH;
+                }
+                else
+                {
+                    temp = temp & ~Consts::FILE_AB;
+                }
+
+                unsafe = unsafe | temp;
+            }
+            theirKnight = theirKnight >> 1;
+            location++;
+        }
+
+        // handle squares controlled diagonally by bishop &| queen
+        uint64_t theirQB = theirBishop | theirQueen;        
+        location = 0;
+        while (theirQB > 0)
+        {
+            if (theirQB & 1)
+            {
+                temp = dAdMoves(location, occupied);
+                unsafe = unsafe | temp;
+            }
+            location++;
+            theirQB = theirQB >> 1;
+        }
+
+        // handle squares controlled diagonally by rook &| queen
+        uint64_t theirQR = theirRook | theirQueen;
+        location = 0;
+        while (theirQR > 0)
+        {
+            if (theirQR & 1)
+            {
+                temp = hvMoves(location, occupied);
+                unsafe = unsafe | temp;
+            }
+            location++;
+            theirQR = theirQR >> 1;
+        }
+
+        // handle the squares controlled by the king
+        location = 0;
+        while (theirKing > 0)
+        {
+            if (theirKing & 1)
+            {
+                if (location > 9)
+                {
+                    temp = Consts::KING_SPAN << (location - 9);
+                }
+                else
+                {
+                    temp = Consts::KING_SPAN >> (9 - location);
+                }
+
+                if ((location % 8) < 4)
+                {
+                    temp = temp & ~Consts::FILE_GH;
+                }
+                else
+                {
+                    temp = temp & ~Consts::FILE_AB;
+                }
+
+                unsafe = unsafe | temp;
+            }
+            theirKing = theirKing >> 1;
+            location++;
+        }
+
+        unsafe = unsafe & ~occupied;
+        return unsafe;
     }
 }
