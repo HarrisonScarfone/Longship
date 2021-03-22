@@ -12,27 +12,61 @@
 
 namespace Moves
 {
-    std::string possibleMoves(Gamestate::Bitboards &bitboards, std::string history)
+    std::string possibleMoves(Gamestate::Bitboards &bitboards, std::string history, bool playingWhite)
     {
-        uint64_t capturableBlackPieces = 
-            (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q) & bitboards.black; 
-        uint64_t notWhitePieces = 
-            ~(((bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q) & bitboards.white) | (bitboards.black & bitboards.k));
+        uint64_t capturablePieces = 
+            (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q);
+        uint64_t pieces = 
+            (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q);
         uint64_t occupied =
             (bitboards.p | bitboards.r | bitboards.n | bitboards.b | bitboards.q | bitboards.k);
         uint64_t emptySpaces = ~occupied;
 
-        uint64_t whiteRook = bitboards.r & bitboards.white;
-        uint64_t whiteBishop = bitboards.b & bitboards.white;
-        uint64_t whiteQueen = bitboards.q & bitboards.white;
-        uint64_t whiteKnight = bitboards.n & bitboards.white;
+        uint64_t myPieces, theirPieces, notMyPieces, myRook, myBishop, myQueen, myKnight, myKing, myPawns, theirPawns;
+        
+        std::string moves = "";
 
-        std::string moves = 
-            possibleWhitePawnMoves(bitboards, capturableBlackPieces, emptySpaces, history) + 
-            possibleWhiteRook(occupied, notWhitePieces, whiteRook) + 
-            possibleWhiteBishop(occupied, notWhitePieces, whiteBishop) + 
-            possibleWhiteQueen(occupied, notWhitePieces, whiteQueen) + 
-            possibleWhiteKnight(notWhitePieces, whiteKnight);   
+        if (playingWhite)
+        {
+            myPieces = bitboards.white;
+            theirPieces = bitboards.black;
+        }
+        else
+        {
+            myPieces = bitboards.black;
+            theirPieces = bitboards.white;
+        }
+
+        capturablePieces = capturablePieces & theirPieces;
+        notMyPieces = ~((pieces & myPieces) | (theirPieces & bitboards.k));
+        myRook = bitboards.r & myPieces;
+        myBishop = bitboards.b & myPieces;
+        myKnight = bitboards.n & myPieces;
+        myQueen = bitboards.q & myPieces;
+        myKing = bitboards.k & myPieces;
+        myPawns = bitboards.p & myPieces;
+        theirPawns = bitboards.p & theirPieces;
+
+        if (playingWhite)
+        {
+            moves = possibleWhitePawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, history);
+        }
+        else
+        {
+            moves = possibleBlackPawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, history);
+        }
+
+        Utilities::uint64AsBoard(bitboards.black);
+        Utilities::uint64AsBoard(bitboards.p);
+        Utilities::uint64AsBoard(myPawns);
+        Utilities::uint64AsBoard(theirPawns);
+
+        moves = moves +
+            possibleRookMoves(occupied, notMyPieces, myRook) + 
+            possibleBishopMoves(occupied, notMyPieces, myBishop) + 
+            possibleQueenMoves(occupied, notMyPieces, myQueen) + 
+            possibleKnightMoves(notMyPieces, myKnight) +
+            possibleKingMoves(notMyPieces, myKing);   
 
         Utilities::showSplitMovestring(moves);
 
@@ -158,7 +192,7 @@ namespace Moves
         return temp;
     }
 
-    std::string possibleWhitePawnMoves(Gamestate::Bitboards &bitboards, uint64_t capturableBlackPeices, uint64_t emptySpaces, std::string history)
+    std::string possibleWhitePawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePieces, uint64_t emptySpaces, std::string history)
     {
         std::string moves = "";
 
@@ -166,40 +200,36 @@ namespace Moves
         Pawn moves steps through each variant of pawn move and 
         builds a move string with all the available moves
         */
-        uint64_t whitePawns = bitboards.white & bitboards.p;
-
         // save a 64 bit for use in move calculation
         uint64_t temp;
         int index;
 
         // check move up single space
-        temp = (whitePawns >> 8) & emptySpaces & ~Consts::RANK_8;
+        temp = (myPawns >> 8) & emptySpaces & ~Consts::RANK_8;
         addPawnMovesToMovestring(&moves, temp, 1, 0, 0, 0);
 
         // two squares forward
-        temp = (whitePawns >> 16) & emptySpaces & Consts::RANK_4;
+        temp = (myPawns >> 16) & emptySpaces & (emptySpaces >> 8) & Consts::RANK_4;
         addPawnMovesToMovestring(&moves, temp, 2, 0, 0, 0);
 
         // capture right
-        temp = (whitePawns >> 7) & capturableBlackPeices & ~Consts::RANK_8 & ~Consts::FILE_A;
+        temp = (myPawns >> 7) & capturablePieces & ~Consts::RANK_8 & ~Consts::FILE_A;
         addPawnMovesToMovestring(&moves, temp, 1, -1, 0, 0);
 
         // capture left
-        temp = (whitePawns >> 9) & capturableBlackPeices & ~Consts::RANK_8 & ~Consts::FILE_H;
+        temp = (myPawns >> 9) & capturablePieces & ~Consts::RANK_8 & ~Consts::FILE_H;
         addPawnMovesToMovestring(&moves, temp, 1, 1, 0, 0);
 
         // promote by right capture
-        temp = (whitePawns >> 7) & capturableBlackPeices & Consts::RANK_8 & ~Consts::FILE_A;
+        temp = (myPawns >> 7) & capturablePieces & Consts::RANK_8 & ~Consts::FILE_A;
         addPromotionMovesToMovestring(&moves, temp, -1, 0);
 
         // promote by left capture
-        temp = (whitePawns >> 9) & capturableBlackPeices & Consts::RANK_8 & ~Consts::FILE_H;
-        Utilities::uint64AsBoard(temp);
+        temp = (myPawns >> 9) & capturablePieces & Consts::RANK_8 & ~Consts::FILE_H;
         addPromotionMovesToMovestring(&moves, temp, 1, 0);
 
         // promote by forward movement
-        temp = (whitePawns >> 8) & emptySpaces & Consts::RANK_8;
-        // Utilities::uint64AsBoard(temp);
+        temp = (myPawns >> 8) & emptySpaces & Consts::RANK_8;
         addPromotionMovesToMovestring(&moves, temp, 0, 0);
 
         // en passant captures
@@ -210,12 +240,12 @@ namespace Moves
                 int eFile=history.at(history.length()-1)-'0';
                 // en passant right
                 // shows piece to remove, not the destination
-                temp = (whitePawns << 1) & (bitboards.black & bitboards.p) & Consts::RANK_5 & ~Consts::FILE_A & Consts::FileMasks8[eFile];
+                temp = (myPawns << 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & Consts::FileMasks8[eFile];
                 addEnPassantMove(&moves, temp, -1, 0);
 
                 // en passant left
                 // shows piece to remove, not the destination
-                temp = (whitePawns >> 1) & (bitboards.black & bitboards.p) & Consts::RANK_5 & ~Consts::FILE_H & Consts::FileMasks8[eFile];
+                temp = (myPawns >> 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & Consts::FileMasks8[eFile];
                 addEnPassantMove(&moves, temp, 1, 0);
             }
         }
@@ -223,19 +253,83 @@ namespace Moves
         return moves;
     }
 
-    std::string possibleWhiteRook(uint64_t occupied, uint64_t notWhite, uint64_t wr)
+    std::string possibleBlackPawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePeices, uint64_t emptySpaces, std::string history)
+    {
+        std::string moves = "";
+
+        /*
+        Pawn moves steps through each variant of pawn move and 
+        builds a move string with all the available moves
+        */
+
+        // save a 64 bit for use in move calculation
+        uint64_t temp;
+        int index;
+
+        // check move up single space
+        temp = (myPawns << 8) & emptySpaces & ~Consts::RANK_1;
+        // Utilities::uint64AsBoard(myPawns);
+        // Utilities::uint64AsBoard(temp);
+        addPawnMovesToMovestring(&moves, temp, -1, 0, 0, 0);
+
+        // two squares forward
+        temp = (myPawns << 16) & emptySpaces & (emptySpaces << 8) & Consts::RANK_5;
+        addPawnMovesToMovestring(&moves, temp, -2, 0, 0, 0);
+
+        // capture right
+        temp = (myPawns << 7) & capturablePeices & ~Consts::RANK_1 & ~Consts::FILE_H;
+        addPawnMovesToMovestring(&moves, temp, -1, 1, 0, 0);
+
+        // capture left
+        temp = (myPawns << 9) & capturablePeices & ~Consts::RANK_1 & ~Consts::FILE_A;
+        addPawnMovesToMovestring(&moves, temp, -1, -1, 0, 0);
+
+        // promote by right capture
+        temp = (myPawns << 7) & capturablePeices & Consts::RANK_1 & ~Consts::FILE_H;
+        addPromotionMovesToMovestring(&moves, temp, 1, 0);
+
+        // promote by left capture
+        temp = (myPawns << 9) & capturablePeices & Consts::RANK_1 & ~Consts::FILE_A;
+        addPromotionMovesToMovestring(&moves, temp, -1, 0);
+
+        // promote by forward movement
+        temp = (myPawns << 8) & emptySpaces & Consts::RANK_1;
+        addPromotionMovesToMovestring(&moves, temp, 0, 0);
+
+        // en passant captures
+        if (history.length()>=4)//1636
+        {
+            if ((history.at(history.length() - 1 )==history.at(history.length() - 3)) && abs(history.at(history.length() - 2)-history.at(history.length() - 4 )) == 2)
+            {
+                int eFile=history.at(history.length()-1)-'0';
+                // en passant right
+                // shows piece to remove, not the destination
+                temp = (myPawns >> 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & Consts::FileMasks8[eFile];
+                addEnPassantMove(&moves, temp, -1, 0);
+
+                // en passant left
+                // shows piece to remove, not the destination
+                temp = (myPawns << 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & Consts::FileMasks8[eFile];
+                addEnPassantMove(&moves, temp, 1, 0);
+            }
+        }
+
+        return moves;
+    }
+
+    std::string possibleRookMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t r)
     {
         std::string temp = "";
         int location = 0;
 
-        while (wr > 0)
+        while (r > 0)
         {
-            if (wr & 1)
+            if (r & 1)
             {
-                uint64_t moveBitboard = hvMoves(location, occupied) & notWhite;
+                uint64_t moveBitboard = hvMoves(location, occupied) & notMyPieces;
                 addSliderMovesToMovestring(&temp, moveBitboard, location);
             }
-            wr = wr >> 1;
+            r = r >> 1;
             location++;
         }
 
@@ -243,19 +337,19 @@ namespace Moves
 
     }
 
-    std::string possibleWhiteBishop(uint64_t occupied, uint64_t notWhite, uint64_t wb)
+    std::string possibleBishopMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t b)
     {
         std::string temp = "";
         int location = 0;
 
-        while (wb > 0)
+        while (b > 0)
         {
-            if (wb & 1)
+            if (b & 1)
             {
-                uint64_t moveBitboard = dAdMoves(location, occupied) & notWhite;
+                uint64_t moveBitboard = dAdMoves(location, occupied) & notMyPieces;
                 addSliderMovesToMovestring(&temp, moveBitboard, location);
             }
-            wb = wb >> 1;
+            b = b >> 1;
             location++;
         }
 
@@ -263,34 +357,34 @@ namespace Moves
 
     }
 
-    std::string possibleWhiteQueen(uint64_t occupied, uint64_t notWhite, uint64_t wq)
+    std::string possibleQueenMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t q)
     {
         std::string temp = "";
         int location = 0;
 
-        while (wq > 0)
+        while (q > 0)
         {
-            if (wq & 1)
+            if (q & 1)
             {
-                uint64_t moveBitboard = (dAdMoves(location, occupied) | hvMoves(location, occupied)) & notWhite;
+                uint64_t moveBitboard = (dAdMoves(location, occupied) | hvMoves(location, occupied)) & notMyPieces;
                 addSliderMovesToMovestring(&temp, moveBitboard, location);
             }
-            wq = wq >> 1;
+            q = q >> 1;
             location++;
         }
 
         return temp;
     }
 
-    std::string possibleWhiteKnight(uint64_t notWhite, uint64_t wn)
+    std::string possibleKnightMoves(uint64_t notMyPieces, uint64_t n)
     {
         std::string temp = "";
         int location = 0;
         uint64_t potentialKnightMoves, moveBitboard;
 
-        while (wn > 0)
+        while (n > 0)
         {
-            if (wn & 1)
+            if (n & 1)
             {
                 if (location > 18)
                 {
@@ -303,19 +397,58 @@ namespace Moves
 
                 if ((location % 8) < 4)
                 {
-                    moveBitboard = potentialKnightMoves & ~Consts::FILE_GH & notWhite;
+                    moveBitboard = potentialKnightMoves & ~Consts::FILE_GH & notMyPieces;
                 }
                 else
                 {
-                    moveBitboard = potentialKnightMoves & ~Consts::FILE_AB & notWhite;
+                    moveBitboard = potentialKnightMoves & ~Consts::FILE_AB & notMyPieces;
                 }
 
                 // can use the slider move add method for the knight as well
                 // since it is a from location -> to location
                 addSliderMovesToMovestring(&temp, moveBitboard, location);
             }
-            wn = wn >> 1;
+            n = n >> 1;
             location++;            
+        }
+
+        return temp;
+    }
+
+    std::string possibleKingMoves(uint64_t notMyPieces, uint64_t k)
+    {
+        std::string temp = "";
+        int location = 0;
+        uint64_t potentialKingMoves, moveBitboard;
+
+        while (k > 0)
+        {
+            if (k & 1)
+            {
+                if (location > 9)
+                {
+                    potentialKingMoves = Consts::KING_SPAN << (location - 9);
+                }
+                else
+                {
+                    potentialKingMoves = Consts::KING_SPAN >> (9 - location);
+                }
+
+                if ((location % 8) < 4)
+                {
+                    moveBitboard = potentialKingMoves & ~Consts::FILE_GH & notMyPieces;
+                }
+                else
+                {
+                    moveBitboard = potentialKingMoves & ~Consts::FILE_AB & notMyPieces;
+                }
+
+                // same as with the knight we can use add slider move method for the kings
+                // bitboard as well
+                addSliderMovesToMovestring(&temp, moveBitboard, location);
+            }
+            k = k >> 1;
+            location++;
         }
 
         return temp;
