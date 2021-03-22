@@ -6,17 +6,28 @@
 
 namespace Utilities
 {
+
     void printuint64InBinary(uint64_t number)
     {
-        helper(number);
-    }
+        std::string temp = "";
+        int index = 0;
 
-    void helper(uint64_t number)
-    {
-        if (number >> 1) {
-            printuint64InBinary(number >> 1);
+        while (index < 64)
+        {
+            if (number & 1)
+            {
+                temp = "1" + temp;
+            }
+            else
+            {
+                temp = "0" + temp;
+            }
+
+            index++;
+            number = number >> 1;
         }
-        putc((number & 1) ? '1' : '0', stdout);
+
+        std::cout << temp << "\n"; 
     }
 
     void newLine()

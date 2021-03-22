@@ -21,4 +21,12 @@ int main(){
 
     Moves::possibleMoves(c, "");
 
+    // uint64_t test = 4567;
+    // uint64_t reverse = Moves::reverseUint64_t(test);
+
+    // Utilities::printuint64InBinary(test);
+    // Utilities::printuint64InBinary(reverse);
+
+
+
 }
