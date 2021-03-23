@@ -15,11 +15,11 @@ int main(){
     Gamestate::Bitboards c = b.getBitboards();
     // Utilities::showBitboardValues(c);
     // b.updateArrayFromBitboard(c);
-    // b.printArrayBoard();
+    b.printArrayBoard();
 
     // Utilities::printuint64InBinary(Consts::RANK_1);
 
-    Moves::possibleMoves(c, "", 1);
+    Moves::possibleMoves(c, "", 0);
 
     // uint64_t test = 4567;
     // uint64_t reverse = Moves::reverseUint64_t(test);
@@ -27,6 +27,9 @@ int main(){
     // Utilities::printuint64InBinary(test);
     // Utilities::printuint64InBinary(reverse);
 
-
+    Gamestate::Bitboards test = Moves::makeMove(c, "p1121");
+    b.updateArrayFromBitboard(test);
+    Utilities::showAllBitboardsAsBoards(test);
+    b.printArrayBoard();
 
 }

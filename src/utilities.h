@@ -14,6 +14,7 @@ namespace Utilities
     void showSplitMovestring(std::string inString);
     void uint64AsBoard(uint64_t in);
     void helper(uint64_t number);
+    void showAllBitboardsAsBoards(Gamestate::Bitboards bitboards);
 
 };
 

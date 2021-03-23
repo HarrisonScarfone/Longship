@@ -66,27 +66,28 @@ namespace Moves
 
         if (playingWhite)
         {
-            moves = possibleWhitePawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, history);
+            moves = 
+                possibleWhitePawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, bitboards.enpassant, playingWhite) + 
+                possibleWhiteCastleMoves(bitboards.wkc, bitboards.wqc);
         }
         else
         {
-            moves = possibleBlackPawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, history);
+            moves = 
+                possibleBlackPawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, bitboards.enpassant, playingWhite) +
+                possibleBlackCastleMoves(bitboards.bkc, bitboards.wqc);
         }
 
         moves = moves +
-            possibleRookMoves(occupied, notMyPieces, myRook) + 
-            possibleBishopMoves(occupied, notMyPieces, myBishop) + 
-            possibleQueenMoves(occupied, notMyPieces, myQueen) + 
-            possibleKnightMoves(notMyPieces, myKnight) +
-            possibleKingMoves(notMyPieces, myKing);   
-
-        Utilities::showSplitMovestring(moves);
-        Utilities::uint64AsBoard(unsafeSpaces(occupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, playingWhite));
-
+            possibleRookMoves(occupied, notMyPieces, myRook, playingWhite) + 
+            possibleBishopMoves(occupied, notMyPieces, myBishop, playingWhite) + 
+            possibleQueenMoves(occupied, notMyPieces, myQueen, playingWhite) + 
+            possibleKnightMoves(notMyPieces, myKnight, playingWhite) +
+            possibleKingMoves(notMyPieces, myKing, playingWhite);   
+            
         return moves;    
     }
 
-    void addPawnMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int x1offset, int y1offset, int x2offset, int y2offset)
+    void addPawnMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int x1offset, int y1offset, int x2offset, int y2offset, bool playingWhite)
     {
         int index = 0;
         while (possibleMoves > 0)
@@ -94,6 +95,14 @@ namespace Moves
             index++;
             if ((possibleMoves >> 1) & 1)
             {
+                if (playingWhite)
+                {
+                    *moveString += "P";
+                }
+                else
+                {
+                    *moveString += "p";
+                }
                 *moveString += std::to_string((index / 8) + x1offset) + std::to_string((index % 8) + y1offset) + 
                     std::to_string((index / 8) + x2offset) + std::to_string((index % 8) + y2offset);       
             }
@@ -101,15 +110,24 @@ namespace Moves
         }
     }
 
-    void addPromotionMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int y1offset, int y2offset){
+    void addPromotionMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int y1offset, int y2offset, bool playingWhite){
         int index = 0;
 
         if (possibleMoves & 1)
         {
-            *moveString += std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PQ" +
-                std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PR" + 
-                std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PB" + 
-                std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PN";    
+            char toAdd;
+            if (playingWhite)
+            {
+                toAdd = 'P';
+            }
+            else
+            {
+                toAdd = 'p';
+            }
+            *moveString += toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PQ" +
+                toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PR" + 
+                toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PB" + 
+                toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PN";    
         }
 
         while (possibleMoves > 0)
@@ -117,22 +135,39 @@ namespace Moves
             index++;
             if ((possibleMoves >> 1) & 1)
             {
-                *moveString += std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PQ" +
-                    std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PR" + 
-                    std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PB" + 
-                    std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PN";      
+                char toAdd;
+                if (playingWhite)
+                {
+                    toAdd = 'P';
+                }
+                else
+                {
+                    toAdd = 'p';
+                }
+                *moveString += toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PQ" +
+                    toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PR" + 
+                    toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PB" + 
+                    toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PN";      
             }
             possibleMoves = possibleMoves >> 1;
         }
     }
 
-    void addEnPassantMove(std::string *moveString, uint64_t possibleMoves, int xoffset, int yoffset)
+    void addEnPassantMove(std::string *moveString, uint64_t possibleMoves, int xoffset, int yoffset, bool playingWhite)
     {
         int index = 0;
         while (possibleMoves > 0)
         {
             if ((possibleMoves >> 1) & 1)
             {
+                if (playingWhite)
+                {
+                    *moveString += "P";
+                }
+                else
+                {
+                    *moveString += "p";
+                }
                 *moveString += std::to_string((index % 8) + xoffset) + std::to_string((index % 8) + yoffset) + "EP";
             }
             possibleMoves = possibleMoves >> 1;
@@ -140,7 +175,7 @@ namespace Moves
         }
     }
 
-    void addSliderMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int location)
+    void addSliderMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int location, char charToAdd)
     {
         int index = 0;
         while (possibleMoves > 0)
@@ -148,7 +183,7 @@ namespace Moves
             index++;
             if ((possibleMoves >> 1) & 1)
             {   
-                *moveString += std::to_string(location / 8) + std::to_string(location % 8) + std::to_string(index / 8) + std::to_string(index % 8);  
+                *moveString += charToAdd + std::to_string(location / 8) + std::to_string(location % 8) + std::to_string(index / 8) + std::to_string(index % 8);  
             }
             possibleMoves = possibleMoves >> 1;
         }
@@ -200,7 +235,7 @@ namespace Moves
         return temp;
     }
 
-    std::string possibleWhitePawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePieces, uint64_t emptySpaces, std::string history)
+    std::string possibleWhitePawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePieces, uint64_t emptySpaces, uint64_t enpassant, bool playingWhite)
     {
         std::string moves = "";
 
@@ -214,54 +249,47 @@ namespace Moves
 
         // check move up single space
         temp = (myPawns >> 8) & emptySpaces & ~Consts::RANK_8;
-        addPawnMovesToMovestring(&moves, temp, 1, 0, 0, 0);
+        addPawnMovesToMovestring(&moves, temp, 1, 0, 0, 0, playingWhite);
 
         // two squares forward
         temp = (myPawns >> 16) & emptySpaces & (emptySpaces >> 8) & Consts::RANK_4;
-        addPawnMovesToMovestring(&moves, temp, 2, 0, 0, 0);
+        addPawnMovesToMovestring(&moves, temp, 2, 0, 0, 0, playingWhite);
 
         // capture right
         temp = (myPawns >> 7) & capturablePieces & ~Consts::RANK_8 & ~Consts::FILE_A;
-        addPawnMovesToMovestring(&moves, temp, 1, -1, 0, 0);
+        addPawnMovesToMovestring(&moves, temp, 1, -1, 0, 0, playingWhite);
 
         // capture left
         temp = (myPawns >> 9) & capturablePieces & ~Consts::RANK_8 & ~Consts::FILE_H;
-        addPawnMovesToMovestring(&moves, temp, 1, 1, 0, 0);
+        addPawnMovesToMovestring(&moves, temp, 1, 1, 0, 0, playingWhite);
 
         // promote by right capture
         temp = (myPawns >> 7) & capturablePieces & Consts::RANK_8 & ~Consts::FILE_A;
-        addPromotionMovesToMovestring(&moves, temp, -1, 0);
+        addPromotionMovesToMovestring(&moves, temp, -1, 0, playingWhite);
 
         // promote by left capture
         temp = (myPawns >> 9) & capturablePieces & Consts::RANK_8 & ~Consts::FILE_H;
-        addPromotionMovesToMovestring(&moves, temp, 1, 0);
+        addPromotionMovesToMovestring(&moves, temp, 1, 0, playingWhite);
 
         // promote by forward movement
         temp = (myPawns >> 8) & emptySpaces & Consts::RANK_8;
-        addPromotionMovesToMovestring(&moves, temp, 0, 0);
+        addPromotionMovesToMovestring(&moves, temp, 0, 0, playingWhite);
 
-        // en passant captures
-        if (history.length()>=4)//1636
-        {
-            if ((history.at(history.length() - 1 )==history.at(history.length() - 3)) && abs(history.at(history.length() - 2)-history.at(history.length() - 4 )) == 2)
-            {
-                int eFile=history.at(history.length()-1)-'0';
-                // en passant right
-                // shows piece to remove, not the destination
-                temp = (myPawns << 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & Consts::FileMasks8[eFile];
-                addEnPassantMove(&moves, temp, -1, 0);
+        // en passant right
+        // shows piece to remove, not the destination
+        temp = (myPawns << 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & enpassant;
+        addEnPassantMove(&moves, temp, -1, 0, playingWhite);
 
-                // en passant left
-                // shows piece to remove, not the destination
-                temp = (myPawns >> 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & Consts::FileMasks8[eFile];
-                addEnPassantMove(&moves, temp, 1, 0);
-            }
-        }
+        // en passant left
+        // shows piece to remove, not the destination
+        temp = (myPawns >> 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & enpassant;
+        addEnPassantMove(&moves, temp, 1, 0, playingWhite);
+           
 
         return moves;
     }
 
-    std::string possibleBlackPawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePeices, uint64_t emptySpaces, std::string history)
+    std::string possibleBlackPawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePeices, uint64_t emptySpaces, uint64_t enpassant, bool playingWhite)
     {
         std::string moves = "";
 
@@ -278,64 +306,65 @@ namespace Moves
         temp = (myPawns << 8) & emptySpaces & ~Consts::RANK_1;
         // Utilities::uint64AsBoard(myPawns);
         // Utilities::uint64AsBoard(temp);
-        addPawnMovesToMovestring(&moves, temp, -1, 0, 0, 0);
+        addPawnMovesToMovestring(&moves, temp, -1, 0, 0, 0, playingWhite);
 
         // two squares forward
         temp = (myPawns << 16) & emptySpaces & (emptySpaces << 8) & Consts::RANK_5;
-        addPawnMovesToMovestring(&moves, temp, -2, 0, 0, 0);
+        addPawnMovesToMovestring(&moves, temp, -2, 0, 0, 0, playingWhite);
 
         // capture right
         temp = (myPawns << 7) & capturablePeices & ~Consts::RANK_1 & ~Consts::FILE_H;
-        addPawnMovesToMovestring(&moves, temp, -1, 1, 0, 0);
+        addPawnMovesToMovestring(&moves, temp, -1, 1, 0, 0, playingWhite);
 
         // capture left
         temp = (myPawns << 9) & capturablePeices & ~Consts::RANK_1 & ~Consts::FILE_A;
-        addPawnMovesToMovestring(&moves, temp, -1, -1, 0, 0);
+        addPawnMovesToMovestring(&moves, temp, -1, -1, 0, 0, playingWhite);
 
         // promote by right capture
         temp = (myPawns << 7) & capturablePeices & Consts::RANK_1 & ~Consts::FILE_H;
-        addPromotionMovesToMovestring(&moves, temp, 1, 0);
+        addPromotionMovesToMovestring(&moves, temp, 1, 0, playingWhite);
 
         // promote by left capture
         temp = (myPawns << 9) & capturablePeices & Consts::RANK_1 & ~Consts::FILE_A;
-        addPromotionMovesToMovestring(&moves, temp, -1, 0);
+        addPromotionMovesToMovestring(&moves, temp, -1, 0, playingWhite);
 
         // promote by forward movement
         temp = (myPawns << 8) & emptySpaces & Consts::RANK_1;
-        addPromotionMovesToMovestring(&moves, temp, 0, 0);
+        addPromotionMovesToMovestring(&moves, temp, 0, 0, playingWhite);
 
-        // en passant captures
-        if (history.length()>=4)//1636
-        {
-            if ((history.at(history.length() - 1 )==history.at(history.length() - 3)) && abs(history.at(history.length() - 2)-history.at(history.length() - 4 )) == 2)
-            {
-                int eFile=history.at(history.length()-1)-'0';
-                // en passant right
-                // shows piece to remove, not the destination
-                temp = (myPawns >> 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & Consts::FileMasks8[eFile];
-                addEnPassantMove(&moves, temp, -1, 0);
+        // en passant right
+        // shows piece to remove, not the destination
+        temp = (myPawns >> 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & enpassant;
+        addEnPassantMove(&moves, temp, -1, 0, playingWhite);
 
-                // en passant left
-                // shows piece to remove, not the destination
-                temp = (myPawns << 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & Consts::FileMasks8[eFile];
-                addEnPassantMove(&moves, temp, 1, 0);
-            }
-        }
+        // en passant left
+        // shows piece to remove, not the destination
+        temp = (myPawns << 1) & (theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & enpassant;
+        addEnPassantMove(&moves, temp, 1, 0, playingWhite);
 
         return moves;
     }
 
-    std::string possibleRookMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t r)
+    std::string possibleRookMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t r, bool playingWhite)
     {
         std::string temp = "";
         int location = 0;
+        char toPass;
 
         while (r > 0)
         {
             if (r & 1)
             {
+                if (playingWhite)
+                {
+                    toPass += 'R';
+                }
+                else
+                {
+                    toPass += 'r';
+                }
                 uint64_t moveBitboard = hvMoves(location, occupied) & notMyPieces;
-                addSliderMovesToMovestring(&temp, moveBitboard, location);
+                addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
             }
             r = r >> 1;
             location++;
@@ -345,17 +374,26 @@ namespace Moves
 
     }
 
-    std::string possibleBishopMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t b)
+    std::string possibleBishopMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t b, bool playingWhite)
     {
         std::string temp = "";
         int location = 0;
+        char toPass;
 
         while (b > 0)
         {
             if (b & 1)
             {
+                if (playingWhite)
+                {
+                    toPass += 'B';
+                }
+                else
+                {
+                    toPass += 'b';
+                }
                 uint64_t moveBitboard = dAdMoves(location, occupied) & notMyPieces;
-                addSliderMovesToMovestring(&temp, moveBitboard, location);
+                addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
             }
             b = b >> 1;
             location++;
@@ -365,17 +403,26 @@ namespace Moves
 
     }
 
-    std::string possibleQueenMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t q)
+    std::string possibleQueenMoves(uint64_t occupied, uint64_t notMyPieces, uint64_t q, bool playingWhite)
     {
         std::string temp = "";
         int location = 0;
+        char toPass;
 
         while (q > 0)
         {
             if (q & 1)
             {
+                if (playingWhite)
+                {
+                    toPass += 'Q';
+                }
+                else
+                {
+                    toPass += 'q';
+                }
                 uint64_t moveBitboard = (dAdMoves(location, occupied) | hvMoves(location, occupied)) & notMyPieces;
-                addSliderMovesToMovestring(&temp, moveBitboard, location);
+                addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
             }
             q = q >> 1;
             location++;
@@ -384,11 +431,12 @@ namespace Moves
         return temp;
     }
 
-    std::string possibleKnightMoves(uint64_t notMyPieces, uint64_t n)
+    std::string possibleKnightMoves(uint64_t notMyPieces, uint64_t n, bool playingWhite)
     {
         std::string temp = "";
         int location = 0;
         uint64_t potentialKnightMoves, moveBitboard;
+        char toPass;
 
         while (n > 0)
         {
@@ -412,9 +460,18 @@ namespace Moves
                     moveBitboard = potentialKnightMoves & ~Consts::FILE_AB & notMyPieces;
                 }
 
+                if (playingWhite)
+                {
+                    toPass += 'N';
+                }
+                else
+                {
+                    toPass += 'n';
+                }
+
                 // can use the slider move add method for the knight as well
                 // since it is a from location -> to location
-                addSliderMovesToMovestring(&temp, moveBitboard, location);
+                addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
             }
             n = n >> 1;
             location++;            
@@ -423,11 +480,12 @@ namespace Moves
         return temp;
     }
 
-    std::string possibleKingMoves(uint64_t notMyPieces, uint64_t k)
+    std::string possibleKingMoves(uint64_t notMyPieces, uint64_t k, bool playingWhite)
     {
         std::string temp = "";
         int location = 0;
         uint64_t potentialKingMoves, moveBitboard;
+        char toPass;
 
         while (k > 0)
         {
@@ -451,9 +509,18 @@ namespace Moves
                     moveBitboard = potentialKingMoves & ~Consts::FILE_AB & notMyPieces;
                 }
 
+                if (playingWhite)
+                {
+                    toPass += 'K';
+                }
+                else
+                {
+                    toPass += 'k';
+                }
+
                 // same as with the knight we can use add slider move method for the kings
                 // bitboard as well
-                addSliderMovesToMovestring(&temp, moveBitboard, location);
+                addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
             }
             k = k >> 1;
             location++;
@@ -578,5 +645,175 @@ namespace Moves
 
         unsafe = unsafe & ~occupied;
         return unsafe;
+    }
+
+    std::string possibleWhiteCastleMoves(bool wkc, bool wqc)
+    {
+        std::string temp = "";
+        if (wkc)
+        {
+            temp += "C7476";
+        }
+        if (wqc)
+        {
+            temp += "C7472";
+        }
+        return temp;
+    }
+
+    std::string possibleBlackCastleMoves(bool bkc, bool bqc)
+    {
+        std::string temp = "";
+        if (bkc)
+        {
+            temp += "c0406";
+        }
+        if (bqc)
+        {
+            temp += "c0402";
+        }
+        return temp;
+    }
+
+    uint64_t getMoveBoard(uint64_t inBoard, int fromLocation, int toLocation)
+    {
+        uint64_t fromBitboard = indexToBitboard(fromLocation);
+        uint64_t toBitboard = indexToBitboard(toLocation);
+        
+        // this should actually remove a piece if the taken piece is the same type
+        // can be left as a redundant check for now
+        return inBoard ^ fromBitboard ^ toBitboard;
+    }
+
+    Gamestate::Bitboards removeTakenPiece(Gamestate::Bitboards newBitboards, int toLocation)
+    {
+        uint64_t toBoard = indexToBitboard((toLocation));
+        // this should take away any piece that is on the square we are moving to
+        if (newBitboards.r & toBoard > 0)
+        {
+            newBitboards.r = newBitboards.r & toBoard;
+        }
+        else if (newBitboards.n & toBoard > 0)
+        {
+            newBitboards.n = newBitboards.n & toBoard;
+        }
+        else if (newBitboards.b & toBoard > 0)
+        {
+            newBitboards.b = newBitboards.b & toBoard;
+        }
+        else if (newBitboards.q & toBoard > 0)
+        {
+            newBitboards.q = newBitboards.q & toBoard;
+        }
+
+        if (newBitboards.white & toBoard > 0)
+        {
+            newBitboards.white = newBitboards.white & toBoard;
+        }
+        else if (newBitboards.black & toBoard > 0)
+        {
+            newBitboards.black = newBitboards.black & toBoard;
+        }
+        return newBitboards;
+    }
+
+    Gamestate::Bitboards makeMove(Gamestate::Bitboards bitboards, std::string move)
+    {
+
+        /*
+        String is going to come as 5 characters ex P1122
+        
+        0 position represents piece type which we can switch off of.
+        Postitions 1 and 2 are the from location, 3 and 4 are the to location.
+        Use these pairs to map to a single bitmask allowing move and piece removal.
+        */
+
+        char pieceToMove = move.at(0);
+        Gamestate::Bitboards newBitboards = bitboards;
+
+        // note the char to int conversion = -48
+        int fromX = move.at(1) - 48;
+        int fromY = move.at(2) - 48;
+        int toX = move.at(3) - 48;
+        int toY = move.at(4) - 48;
+
+        int fromLocation = (fromX * 8) + fromY;
+        int toLocation = (toX * 8) + fromY;
+        
+        switch (pieceToMove)
+        {
+        case 'c':
+            break;
+        case 'C':
+            break;
+        case 'e':
+            break;
+        case 'E':
+            break;
+        case 'p':
+            newBitboards.p = getMoveBoard(newBitboards.p, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'P':
+            newBitboards.p = getMoveBoard(newBitboards.p, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.white, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'r':
+            newBitboards.r = getMoveBoard(newBitboards.r, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'R':
+            newBitboards.r = getMoveBoard(newBitboards.r, fromLocation, toLocation);
+            newBitboards.white = getMoveBoard(newBitboards.white, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'b':
+            newBitboards.b = getMoveBoard(newBitboards.b, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'B':
+            newBitboards.b = getMoveBoard(newBitboards.b, fromLocation, toLocation);
+            newBitboards.white = getMoveBoard(newBitboards.white, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'n':
+            newBitboards.n = getMoveBoard(newBitboards.n, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'N':
+            newBitboards.n = getMoveBoard(newBitboards.n, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.white, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'q':
+            newBitboards.q = getMoveBoard(newBitboards.q, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'Q':
+            newBitboards.q = getMoveBoard(newBitboards.q, fromLocation, toLocation);
+            newBitboards.white = getMoveBoard(newBitboards.white, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'k':
+            newBitboards.k = getMoveBoard(newBitboards.k, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        case 'K':
+            newBitboards.k = getMoveBoard(newBitboards.k, fromLocation, toLocation);
+            newBitboards.black = getMoveBoard(newBitboards.white, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            break;
+        default:
+            throw 111;
+        }
+
+        return newBitboards;
     }
 }

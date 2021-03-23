@@ -33,12 +33,12 @@ void Manager::setBoard()
 {
     std::string tmp_board[8][8] = {
         {" "," "," "," "," "," "," "," "},
-        {" ","p"," ","P"," ","k"," "," "},
+        {" ","p"," "," "," "," "," "," "},
         {" "," "," "," "," "," "," "," "},
-        {" "," "," ","b"," "," "," "," "},
-        {" "," "," "," ","P"," "," "," "},
         {" "," "," "," "," "," "," "," "},
-        {" "," ","K"," ","P"," "," "," "},
+        {" "," "," "," "," "," "," "," "},
+        {" "," "," "," "," "," "," "," "},
+        {" "," "," "," "," "," "," "," "},
         {" "," "," "," "," "," "," "," "}};
 
         /*
@@ -164,49 +164,53 @@ void Manager::updateArrayFromBitboard(Gamestate::Bitboards bitboards)
         {
             board[i/8][i%8] = "P";
         }
-        if ((((bitboards.r & bitboards.white)>>i)&1)==1)
+        else if ((((bitboards.r & bitboards.white)>>i)&1)==1)
         {
             board[i/8][i%8] = "R";
         }
-        if ((((bitboards.n & bitboards.white)>>i)&1)==1)
+        else if ((((bitboards.n & bitboards.white)>>i)&1)==1)
         {
             board[i/8][i%8] = "N";
         }
-        if ((((bitboards.b & bitboards.white)>>i)&1)==1)
+        else if ((((bitboards.b & bitboards.white)>>i)&1)==1)
         {
             board[i/8][i%8] = "B";
         }
-        if ((((bitboards.q & bitboards.white)>>i)&1)==1)
+        else if ((((bitboards.q & bitboards.white)>>i)&1)==1)
         {
             board[i/8][i%8] = "Q";
         }
-        if ((((bitboards.k & bitboards.white)>>i)&1)==1)
+        else if ((((bitboards.k & bitboards.white)>>i)&1)==1)
         {
             board[i/8][i%8] = "K";
         }
-        if ((((bitboards.p & bitboards.black)>>i)&1)==1)
+        else if ((((bitboards.p & bitboards.black)>>i)&1)==1)
         {
             board[i/8][i%8] = "p";
         }
-        if ((((bitboards.r & bitboards.black)>>i)&1)==1)
+        else if ((((bitboards.r & bitboards.black)>>i)&1)==1)
         {
             board[i/8][i%8] = "r";
         }
-        if ((((bitboards.n & bitboards.black)>>i)&1)==1)
+        else if ((((bitboards.n & bitboards.black)>>i)&1)==1)
         {
             board[i/8][i%8] = "n";
         }
-        if ((((bitboards.b & bitboards.black)>>i)&1)==1)
+        else if ((((bitboards.b & bitboards.black)>>i)&1)==1)
         {
             board[i/8][i%8] = "b";
         }
-        if ((((bitboards.q & bitboards.black)>>i)&1)==1)
+        else if ((((bitboards.q & bitboards.black)>>i)&1)==1)
         {
             board[i/8][i%8] = "q";
         }
-        if ((((bitboards.k & bitboards.black)>>i)&1)==1)
+        else if ((((bitboards.k & bitboards.black)>>i)&1)==1)
         {
             board[i/8][i%8] = "k";
+        }
+        else
+        {
+            board[i/8][i%8] = " ";
         }
     }
 }

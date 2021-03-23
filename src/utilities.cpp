@@ -58,16 +58,16 @@ namespace Utilities
     {
         for (int i = 0; i < inString.length(); i++)
         {
-            if (i % 4 == 0)
+            if (i % 5 == 0)
             {
                 std::cout << "\n";
             }
-            else if (i % 2 == 0)
+            else if ((i - 3) % 5 == 0)
             {
                 std::cout << "->";
             }
             
-            std::cout << inString.at(i);
+            std::cout << inString.at(i); // 0 1 2 3 4 5 / 
         }
 
         std::cout << "\n";
@@ -78,8 +78,6 @@ namespace Utilities
 
         int count = 0;
         std::string outString;
-        
-        std::cout << in << "\n";
 
         while (count < 64)
         {
@@ -100,6 +98,24 @@ namespace Utilities
             in = in / 2;
             count++;
         }
-        std::cout << outString << "\n";
+        std::cout << "\n" << outString << "\n";
+    }
+
+    void showAllBitboardsAsBoards(Gamestate::Bitboards bitboards)
+    {
+        std::cout << "White\n";
+        uint64AsBoard(bitboards.white);
+        std::cout << "Black\n";
+        uint64AsBoard(bitboards.black);
+        std::cout << "Pawns\n";
+        uint64AsBoard(bitboards.p);
+        std::cout << "Rooks\n";
+        uint64AsBoard(bitboards.r);
+        std::cout << "Bishops\n";
+        uint64AsBoard(bitboards.b);
+        std::cout << "Queens\n";
+        uint64AsBoard(bitboards.q);
+        std::cout << "Kings\n";
+        uint64AsBoard(bitboards.k);
     }
 };
