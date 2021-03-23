@@ -98,24 +98,44 @@ namespace Utilities
             in = in / 2;
             count++;
         }
-        std::cout << "\n" << outString << "\n";
+        std::cout << "\n" << outString << "\n\n";
     }
 
     void showAllBitboardsAsBoards(Gamestate::Bitboards bitboards)
     {
-        std::cout << "White\n";
+        std::cout << "White";
         uint64AsBoard(bitboards.white);
-        std::cout << "Black\n";
+        std::cout << "Black";
         uint64AsBoard(bitboards.black);
-        std::cout << "Pawns\n";
+        std::cout << "Pawns";
         uint64AsBoard(bitboards.p);
-        std::cout << "Rooks\n";
+        std::cout << "Rooks";
         uint64AsBoard(bitboards.r);
-        std::cout << "Bishops\n";
+        std::cout << "Bishops";
         uint64AsBoard(bitboards.b);
-        std::cout << "Queens\n";
+        std::cout << "Queens";
         uint64AsBoard(bitboards.q);
-        std::cout << "Kings\n";
+        std::cout << "Kings";
         uint64AsBoard(bitboards.k);
+        std::cout << "White Pawns";
+        uint64AsBoard(bitboards.p & bitboards.white);
+        std::cout << "White Rooks";
+        uint64AsBoard(bitboards.r & bitboards.white);
+        std::cout << "White Bishops";
+        uint64AsBoard(bitboards.b & bitboards.white);
+        std::cout << "White Queens";
+        uint64AsBoard(bitboards.q & bitboards.white);
+        std::cout << "White Kings";
+        uint64AsBoard(bitboards.k & bitboards.white);
+        std::cout << "black Pawns";
+        uint64AsBoard(bitboards.p & bitboards.black);
+        std::cout << "black Rooks";
+        uint64AsBoard(bitboards.r & bitboards.black);
+        std::cout << "black Bishops";
+        uint64AsBoard(bitboards.b & bitboards.black);
+        std::cout << "black Queens";
+        uint64AsBoard(bitboards.q & bitboards.black);
+        std::cout << "black Kings";
+        uint64AsBoard(bitboards.k & bitboards.black);
     }
 };

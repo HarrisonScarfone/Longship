@@ -7,7 +7,7 @@
 
 namespace Moves
 {
-    std::string possibleMoves(Gamestate::Bitboards &bitboards, std::string history, bool playingWhite);
+    std::string possibleMoves(Gamestate::Bitboards &bitboards, bool playingWhite);
     std::string possibleWhitePawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePieces, uint64_t emptySpaces, uint64_t enpassant, bool playingWhite);   
     std::string possibleBlackPawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePeices, uint64_t emptySpaces, uint64_t enpassant, bool playingWhite);
     void addPawnMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int x1offset, int y1offset, int x2offset, int y2offset, bool playingWhite);
@@ -24,8 +24,8 @@ namespace Moves
     std::string possibleKnightMoves(uint64_t notMyPieces, uint64_t n, bool playingWhite);
     std::string possibleKingMoves(uint64_t notMyPieces, uint64_t k, bool playingWhite);
     uint64_t unsafeSpaces(uint64_t occupied, uint64_t theirPawns, uint64_t theirRook, uint64_t theirKnight, uint64_t theirBishop, uint64_t theirQueen, uint64_t theirKing, bool playingWhite);
-    std::string possibleWhiteCastleMoves(bool wkc, bool wqc);
-    std::string possibleBlackCastleMoves(bool bkc, bool bqc);
+    std::string possibleWhiteCastleMoves(uint64_t occupied, bool wkc, bool wqc);
+    std::string possibleBlackCastleMoves(uint64_t occupied, bool bkc, bool bqc);
     Gamestate::Bitboards removeTakenPiece(Gamestate::Bitboards newBitboards, int toLocation);
     uint64_t getMoveBoard(uint64_t inBoard, int fromLocation, int toLocation);
     Gamestate::Bitboards makeMove(Gamestate::Bitboards bitboards, std::string move);

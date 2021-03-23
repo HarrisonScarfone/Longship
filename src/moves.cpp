@@ -22,7 +22,7 @@ Magic Numbers in the file:
 
 namespace Moves
 {
-    std::string possibleMoves(Gamestate::Bitboards &bitboards, std::string history, bool playingWhite)
+    std::string possibleMoves(Gamestate::Bitboards &bitboards, bool playingWhite)
     {
         uint64_t capturablePieces = 
             (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q);
@@ -38,7 +38,7 @@ namespace Moves
         
         std::string moves = "";
 
-        if (playingWhite)
+        if (playingWhite == 1)
         {
             myPieces = bitboards.white;
             theirPieces = bitboards.black;
@@ -64,17 +64,17 @@ namespace Moves
         theirQueen = bitboards.q & theirPieces;
         theirKing = bitboards.k & theirPieces;
 
-        if (playingWhite)
+        if (playingWhite == 1)
         {
             moves = 
                 possibleWhitePawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, bitboards.enpassant, playingWhite) + 
-                possibleWhiteCastleMoves(bitboards.wkc, bitboards.wqc);
+                possibleWhiteCastleMoves(occupied, bitboards.wkc, bitboards.wqc);
         }
         else
         {
             moves = 
                 possibleBlackPawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, bitboards.enpassant, playingWhite) +
-                possibleBlackCastleMoves(bitboards.bkc, bitboards.wqc);
+                possibleBlackCastleMoves(occupied, bitboards.bkc, bitboards.wqc);
         }
 
         moves = moves +
@@ -357,12 +357,13 @@ namespace Moves
             {
                 if (playingWhite)
                 {
-                    toPass += 'R';
+                    toPass = 'R';
                 }
                 else
                 {
-                    toPass += 'r';
+                    toPass = 'r';
                 }
+                
                 uint64_t moveBitboard = hvMoves(location, occupied) & notMyPieces;
                 addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
             }
@@ -386,11 +387,11 @@ namespace Moves
             {
                 if (playingWhite)
                 {
-                    toPass += 'B';
+                    toPass = 'B';
                 }
                 else
                 {
-                    toPass += 'b';
+                    toPass = 'b';
                 }
                 uint64_t moveBitboard = dAdMoves(location, occupied) & notMyPieces;
                 addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
@@ -415,11 +416,11 @@ namespace Moves
             {
                 if (playingWhite)
                 {
-                    toPass += 'Q';
+                    toPass = 'Q';
                 }
                 else
                 {
-                    toPass += 'q';
+                    toPass = 'q';
                 }
                 uint64_t moveBitboard = (dAdMoves(location, occupied) | hvMoves(location, occupied)) & notMyPieces;
                 addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
@@ -462,11 +463,11 @@ namespace Moves
 
                 if (playingWhite)
                 {
-                    toPass += 'N';
+                    toPass = 'N';
                 }
                 else
                 {
-                    toPass += 'n';
+                    toPass = 'n';
                 }
 
                 // can use the slider move add method for the knight as well
@@ -511,11 +512,11 @@ namespace Moves
 
                 if (playingWhite)
                 {
-                    toPass += 'K';
+                    toPass = 'K';
                 }
                 else
                 {
-                    toPass += 'k';
+                    toPass = 'k';
                 }
 
                 // same as with the knight we can use add slider move method for the kings
@@ -647,28 +648,28 @@ namespace Moves
         return unsafe;
     }
 
-    std::string possibleWhiteCastleMoves(bool wkc, bool wqc)
+    std::string possibleWhiteCastleMoves(uint64_t occupied, bool wkc, bool wqc)
     {
         std::string temp = "";
-        if (wkc)
+        if (wkc == 1 && ((occupied & Consts::WKC_INBETWEEN) == 0))
         {
             temp += "C7476";
         }
-        if (wqc)
+        if (wqc == 1 && ((occupied & Consts::WQC_INBETWEEN) == 0))
         {
             temp += "C7472";
         }
         return temp;
     }
 
-    std::string possibleBlackCastleMoves(bool bkc, bool bqc)
+    std::string possibleBlackCastleMoves(uint64_t occupied, bool bkc, bool bqc)
     {
         std::string temp = "";
-        if (bkc)
+        if (bkc == 1 && ((occupied & Consts::BKC_INBETWEEN) == 0))
         {
             temp += "c0406";
         }
-        if (bqc)
+        if (bqc == 1 && ((occupied & Consts::BQC_INBETWEEN) == 0))
         {
             temp += "c0402";
         }
@@ -738,7 +739,7 @@ namespace Moves
         int toY = move.at(4) - 48;
 
         int fromLocation = (fromX * 8) + fromY;
-        int toLocation = (toX * 8) + fromY;
+        int toLocation = (toX * 8) + toY;
         
         switch (pieceToMove)
         {
@@ -764,6 +765,27 @@ namespace Moves
             newBitboards.r = getMoveBoard(newBitboards.r, fromLocation, toLocation);
             newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
             newBitboards = removeTakenPiece(newBitboards, toLocation);
+
+            // remove castling rights by setting the intially 1 valued castle bit
+            // look at which castle we moved and switch that bit, can only ever switch off
+            // probably a better way to do this as it will have uncessary executions
+
+            if ((newBitboards.r & Consts::BQC) == 0)
+            {
+                newBitboards.bqc = 0;
+            }
+            if ((newBitboards.r & Consts::BKC) == 0)
+            {
+                newBitboards.bkc = 0;
+            }
+            if ((newBitboards.r & Consts::WQC) == 0)
+            {
+                newBitboards.wqc = 0;
+            }
+            if ((newBitboards.r & Consts::WKC) == 0)
+            {
+                newBitboards.wkc = 0;
+            }
             break;
         case 'R':
             newBitboards.r = getMoveBoard(newBitboards.r, fromLocation, toLocation);

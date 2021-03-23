@@ -5,6 +5,7 @@
 
 namespace Consts
 {
+    // logic for general moves
     const uint64_t FILE_A = 0x101010101010101L;
     const uint64_t FILE_H = 0x8080808080808080L;
     const uint64_t FILE_AB = 217020518514230019L;
@@ -19,6 +20,17 @@ namespace Consts
     const uint64_t QUEEN_SIDE = 1085102592571150095L;
     const uint64_t KING_SPAN = 460039L;
     const uint64_t KNIGHT_SPAN = 43234889994L;
+
+    // bitmasks needed for castling logic
+    const uint64_t BQC = 0x1;
+    const uint64_t BQC_INBETWEEN = 0xE;
+    const uint64_t BKC = 0x80;
+    const uint64_t BKC_INBETWEEN = 0x60;
+    
+    const uint64_t WQC = 0x8000000000000000;
+    const uint64_t WQC_INBETWEEN = 0xE00000000000000;
+    const uint64_t WKC = 0x100000000000000;
+    const uint64_t WKC_INBETWEEN = 0x6000000000000000;
 
     // rank 1 to rank 8
     const uint64_t RankMasks8[] =
