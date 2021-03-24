@@ -27,7 +27,7 @@ namespace Moves
         uint64_t capturablePieces = 
             (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q);
         uint64_t pieces = 
-            (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q);
+            (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q | bitboards.k);
         uint64_t occupied =
             (bitboards.p | bitboards.r | bitboards.n | bitboards.b | bitboards.q | bitboards.k);
         uint64_t emptySpaces = ~occupied;
@@ -778,6 +778,13 @@ namespace Moves
             {
                 newBitboards.bkc = 0;
             }
+            break;
+        case 'R':
+            newBitboards.r = getMoveBoard(newBitboards.r, fromLocation, toLocation);
+            newBitboards.white = getMoveBoard(newBitboards.white, fromLocation, toLocation);
+            newBitboards = removeTakenPiece(newBitboards, toLocation);
+
+            // see above comment for black rooks
             if ((newBitboards.r & Consts::WQC) == 0)
             {
                 newBitboards.wqc = 0;
@@ -786,11 +793,6 @@ namespace Moves
             {
                 newBitboards.wkc = 0;
             }
-            break;
-        case 'R':
-            newBitboards.r = getMoveBoard(newBitboards.r, fromLocation, toLocation);
-            newBitboards.white = getMoveBoard(newBitboards.white, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
             break;
         case 'b':
             newBitboards.b = getMoveBoard(newBitboards.b, fromLocation, toLocation);

@@ -35,33 +35,32 @@ void Game::playCLIGame()
     Gamestate::Bitboards currBitboards;
     Gamestate::Bitboards newBitboards;
     currBitboards = gameHistory.at(0);
-    Utilities::showAllBitboardsAsBoards(currBitboards);
 
-    // while (true)
-    // {
-    //     currBitboards = gameHistory.at(turnCount);
+    while (true)
+    {
+        currBitboards = gameHistory.at(turnCount);
 
-    //     gm.updateArrayFromBitboard(currBitboards);
-    //     gm.printArrayBoard();
+        gm.updateArrayFromBitboard(currBitboards);
+        gm.printArrayBoard();
 
-    //     std::string possibleMoves;
-    //     possibleMoves = Moves::possibleMoves(gameHistory.at(turnCount), whiteToPlay);
-    //     Utilities::showSplitMovestring(possibleMoves);
+        std::string possibleMoves;
+        possibleMoves = Moves::possibleMoves(gameHistory.at(turnCount), whiteToPlay);
+        Utilities::showSplitMovestring(possibleMoves);
 
-    //     std::cout << getTurnColorString(whiteToPlay) << "'s turn. " << "There are " << possibleMoves.length() / 5 << " moves.\n";
-    //     std::cout << possibleMoves << "\n";
-    //     std::cout << "Select a move: ";
-    //     std::cin >> move;
-    //     std::cout << "\n";
+        std::cout << getTurnColorString(whiteToPlay) << "'s turn. " << "There are " << possibleMoves.length() / 5 << " moves.\n";
+        std::cout << possibleMoves << "\n";
+        std::cout << "Select a move: ";
+        std::cin >> move;
+        std::cout << "\n";
 
-    //     newBitboards = Moves::makeMove(currBitboards, move);
+        newBitboards = Moves::makeMove(currBitboards, move);
 
-    //     gameHistory.push_back(newBitboards);
-    //     currBitboards = newBitboards;
+        gameHistory.push_back(newBitboards);
+        currBitboards = newBitboards;
 
-    //     whiteToPlay = !whiteToPlay;
-    //     turnCount++;
-    // }
+        whiteToPlay = !whiteToPlay;
+        turnCount++;
+    }
 
 }
 
