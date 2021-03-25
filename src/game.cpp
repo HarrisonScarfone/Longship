@@ -57,6 +57,7 @@ void Game::playCLIGame()
 
         gameHistory.push_back(newBitboards);
         currBitboards = newBitboards;
+        Utilities::showAllBitboardsAsBoards(currBitboards);
 
         whiteToPlay = !whiteToPlay;
         turnCount++;

@@ -216,8 +216,8 @@ namespace Moves
     uint64_t hvMoves(int index, uint64_t occupied)
     {
         uint64_t indexBitboard = indexToBitboard(index);
-        uint64_t horizontal = (occupied - 2 * indexBitboard) ^ reverseUint64_t(reverseUint64_t(occupied) - 2 * reverseUint64_t(indexBitboard));
-        uint64_t vertical = ((occupied & Consts::FileMasks8[index % 8]) - (2 * indexBitboard)) ^ reverseUint64_t(reverseUint64_t(occupied & Consts::FileMasks8[index % 8]) - (2 * reverseUint64_t(indexBitboard)));
+        uint64_t horizontal = (occupied - (2 * indexBitboard)) ^ reverseUint64_t(reverseUint64_t(occupied) - 2 * reverseUint64_t(indexBitboard));
+        uint64_t vertical = ((occupied & Consts::FileMasks8[(index + 1) % 8]) - (2 * indexBitboard)) ^ reverseUint64_t(reverseUint64_t(occupied & Consts::FileMasks8[(index + 1) % 8]) - (2 * reverseUint64_t(indexBitboard)));
 
         uint64_t temp = (horizontal & Consts::RankMasks8[index / 8]) | (vertical & Consts::FileMasks8[index % 8]);
 
@@ -676,46 +676,52 @@ namespace Moves
         return temp;
     }
 
-    uint64_t getMoveBoard(uint64_t inBoard, int fromLocation, int toLocation)
-    {
-        uint64_t fromBitboard = indexToBitboard(fromLocation);
-        uint64_t toBitboard = indexToBitboard(toLocation);
-        
-        // this should actually remove a piece if the taken piece is the same type
-        // can be left as a redundant check for now
-        return inBoard ^ fromBitboard ^ toBitboard;
-    }
+    /*
+    think im going to have to remove the piece from both and add it back, getting weird bugs
+    with pieces taking pieces of the same type and an even weirder bug with the color boards
+    when taking pieces of different types.  implement a lazy solution for now and come back
+    when its time to optimize
 
-    Gamestate::Bitboards removeTakenPiece(Gamestate::Bitboards newBitboards, int toLocation)
+    although maybe not the best solution i am preforming at max 1 struct copy, 3 64 bit bitwise
+    operations per call with one call each time to remove the from and to piece.  i can 
+    if/else if all of them because i'm assuming the engine did it properly and is only sitting
+    1 piece per square.  then set the piece back in the switch depending on which piece you moved
+    using the to board. not great but not terrible.
+
+    tldr -> remove bit locations in to and from, add back the to
+    */
+
+    Gamestate::Bitboards removeLocationSquareFromBitboards(Gamestate::Bitboards bitboards, uint64_t *board)
     {
-        uint64_t toBoard = indexToBitboard((toLocation));
-        // this should take away any piece that is on the square we are moving to
-        if (newBitboards.r & toBoard > 0)
+        // remove the piece        
+        if ((bitboards.p & *board) > 0)
         {
-            newBitboards.r = newBitboards.r & toBoard;
+            bitboards.p = bitboards.p & ~*board;
         }
-        else if (newBitboards.n & toBoard > 0)
+        else if (bitboards.r & *board > 0)
         {
-            newBitboards.n = newBitboards.n & toBoard;
+            bitboards.r = bitboards.r & ~*board;
         }
-        else if (newBitboards.b & toBoard > 0)
+        else if (bitboards.n & *board > 0)
         {
-            newBitboards.b = newBitboards.b & toBoard;
+            bitboards.n = bitboards.n & ~*board;
         }
-        else if (newBitboards.q & toBoard > 0)
+        else if (bitboards.b & *board > 0)
         {
-            newBitboards.q = newBitboards.q & toBoard;
+            bitboards.b = bitboards.b & ~*board;
+        }
+        else if (bitboards.q & *board > 0)
+        {
+            bitboards.q = bitboards.q & ~*board;
         }
 
-        if (newBitboards.white & toBoard > 0)
-        {
-            newBitboards.white = newBitboards.white & toBoard;
-        }
-        else if (newBitboards.black & toBoard > 0)
-        {
-            newBitboards.black = newBitboards.black & toBoard;
-        }
-        return newBitboards;
+        // always remove from both colors to avoid weird bug ive been getting can come back to this
+        // 4 64 bit ops instead of 3 to check both because we can skip the if
+        bitboards.white = bitboards.white & ~*board;
+        bitboards.black = bitboards.black & ~*board;
+
+        return bitboards;
+
     }
 
     Gamestate::Bitboards makeMove(Gamestate::Bitboards bitboards, std::string move)
@@ -740,6 +746,12 @@ namespace Moves
 
         int fromLocation = (fromX * 8) + fromY;
         int toLocation = (toX * 8) + toY;
+
+        uint64_t toBoard = indexToBitboard(toLocation);
+        uint64_t fromBoard = indexToBitboard(fromLocation);
+
+        newBitboards = removeLocationSquareFromBitboards(newBitboards, &toBoard);
+        newBitboards = removeLocationSquareFromBitboards(newBitboards, &fromBoard);
         
         switch (pieceToMove)
         {
@@ -752,19 +764,17 @@ namespace Moves
         case 'E':
             break;
         case 'p':
-            newBitboards.p = getMoveBoard(newBitboards.p, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.p = newBitboards.p | toBoard;
+            newBitboards.black = newBitboards.black | toBoard;
             break;
         case 'P':
-            newBitboards.p = getMoveBoard(newBitboards.p, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.white, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.p = newBitboards.p | toBoard;
+            newBitboards.white = newBitboards.white | toBoard;
             break;
         case 'r':
-            newBitboards.r = getMoveBoard(newBitboards.r, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.r = newBitboards.r | toBoard;
+            newBitboards.black = newBitboards.black | toBoard;
+            // newBitboards = removeTakenPiece(newBitboards, toLocation, pieceToMove);
 
             // remove castling rights by setting the intially 1 valued castle bit
             // look at which castle we moved and switch that bit, can only ever switch off
@@ -780,9 +790,9 @@ namespace Moves
             }
             break;
         case 'R':
-            newBitboards.r = getMoveBoard(newBitboards.r, fromLocation, toLocation);
-            newBitboards.white = getMoveBoard(newBitboards.white, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.r = newBitboards.r | toBoard;
+            newBitboards.white = newBitboards.white | toBoard;
+            // newBitboards = removeTakenPiece(newBitboards, toLocation, pieceToMove);
 
             // see above comment for black rooks
             if ((newBitboards.r & Consts::WQC) == 0)
@@ -795,44 +805,36 @@ namespace Moves
             }
             break;
         case 'b':
-            newBitboards.b = getMoveBoard(newBitboards.b, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.b = newBitboards.b | toBoard;
+            newBitboards.black = newBitboards.black | toBoard;
             break;
         case 'B':
-            newBitboards.b = getMoveBoard(newBitboards.b, fromLocation, toLocation);
-            newBitboards.white = getMoveBoard(newBitboards.white, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.b = newBitboards.b | toBoard;
+            newBitboards.white = newBitboards.white | toBoard;
             break;
         case 'n':
-            newBitboards.n = getMoveBoard(newBitboards.n, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.n = newBitboards.n | toBoard;
+            newBitboards.black = newBitboards.black | toBoard;
             break;
         case 'N':
-            newBitboards.n = getMoveBoard(newBitboards.n, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.white, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.n = newBitboards.n | toBoard;
+            newBitboards.white = newBitboards.white | toBoard;
             break;
         case 'q':
-            newBitboards.q = getMoveBoard(newBitboards.q, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.q = newBitboards.q | toBoard;
+            newBitboards.black = newBitboards.black | toBoard;
             break;
         case 'Q':
-            newBitboards.q = getMoveBoard(newBitboards.q, fromLocation, toLocation);
-            newBitboards.white = getMoveBoard(newBitboards.white, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.q = newBitboards.q | toBoard;
+            newBitboards.white = newBitboards.white | toBoard;
             break;
         case 'k':
-            newBitboards.k = getMoveBoard(newBitboards.k, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.black, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.k = newBitboards.k | toBoard;
+            newBitboards.black = newBitboards.black | toBoard;
             break;
         case 'K':
-            newBitboards.k = getMoveBoard(newBitboards.k, fromLocation, toLocation);
-            newBitboards.black = getMoveBoard(newBitboards.white, fromLocation, toLocation);
-            newBitboards = removeTakenPiece(newBitboards, toLocation);
+            newBitboards.k = newBitboards.p | toBoard;
+            newBitboards.k = newBitboards.white | toBoard;
             break;
         default:
             throw 111;

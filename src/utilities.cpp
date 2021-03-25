@@ -113,6 +113,8 @@ namespace Utilities
         uint64AsBoard(bitboards.r);
         std::cout << "Bishops";
         uint64AsBoard(bitboards.b);
+        std::cout << "Knights";
+        uint64AsBoard(bitboards.n);
         std::cout << "Queens";
         uint64AsBoard(bitboards.q);
         std::cout << "Kings";
@@ -121,6 +123,8 @@ namespace Utilities
         uint64AsBoard(bitboards.p & bitboards.white);
         std::cout << "White Rooks";
         uint64AsBoard(bitboards.r & bitboards.white);
+        std::cout << "White Knights";
+        uint64AsBoard(bitboards.n & bitboards.white);
         std::cout << "White Bishops";
         uint64AsBoard(bitboards.b & bitboards.white);
         std::cout << "White Queens";
@@ -131,6 +135,8 @@ namespace Utilities
         uint64AsBoard(bitboards.p & bitboards.black);
         std::cout << "black Rooks";
         uint64AsBoard(bitboards.r & bitboards.black);
+        std::cout << "black Knights";
+        uint64AsBoard(bitboards.n & bitboards.black);
         std::cout << "black Bishops";
         uint64AsBoard(bitboards.b & bitboards.black);
         std::cout << "black Queens";

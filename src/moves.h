@@ -26,8 +26,7 @@ namespace Moves
     uint64_t unsafeSpaces(uint64_t occupied, uint64_t theirPawns, uint64_t theirRook, uint64_t theirKnight, uint64_t theirBishop, uint64_t theirQueen, uint64_t theirKing, bool playingWhite);
     std::string possibleWhiteCastleMoves(uint64_t occupied, bool wkc, bool wqc);
     std::string possibleBlackCastleMoves(uint64_t occupied, bool bkc, bool bqc);
-    Gamestate::Bitboards removeTakenPiece(Gamestate::Bitboards newBitboards, int toLocation);
-    uint64_t getMoveBoard(uint64_t inBoard, int fromLocation, int toLocation);
+    Gamestate::Bitboards removeLocationSquareFromBitboards(Gamestate::Bitboards bitboards, uint64_t *board);    uint64_t getMoveBoard(uint64_t inBoard, int fromLocation, int toLocation);
     Gamestate::Bitboards makeMove(Gamestate::Bitboards bitboards, std::string move);
     
 
