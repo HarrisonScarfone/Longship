@@ -34,7 +34,7 @@ namespace Moves
 
         uint64_t    myPieces, myPawns, myRook, myBishop, myQueen, myKnight, myKing,  
                     theirPieces, theirPawns, theirRook, theirBishop, theirQueen, theirKnight, theirKing,
-                    notMyPieces;
+                    notMyPieces, unsafe;
         
         std::string moves = "";
 
@@ -64,6 +64,8 @@ namespace Moves
         theirQueen = bitboards.q & theirPieces;
         theirKing = bitboards.k & theirPieces;
 
+        unsafe = unsafeSpaces(occupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, playingWhite);
+
         if (playingWhite == 1)
         {
             moves = 
@@ -82,7 +84,7 @@ namespace Moves
             possibleBishopMoves(occupied, notMyPieces, myBishop, playingWhite) + 
             possibleQueenMoves(occupied, notMyPieces, myQueen, playingWhite) + 
             possibleKnightMoves(notMyPieces, myKnight, playingWhite) +
-            possibleKingMoves(notMyPieces, myKing, playingWhite);   
+            possibleKingMoves(notMyPieces, myKing, unsafe, playingWhite);   
             
         return moves;    
     }
@@ -483,12 +485,14 @@ namespace Moves
         return temp;
     }
 
-    std::string possibleKingMoves(uint64_t notMyPieces, uint64_t k, bool playingWhite)
+    std::string possibleKingMoves(uint64_t notMyPieces, uint64_t k, uint64_t unsafe, bool playingWhite)
     {
         std::string temp = "";
         int location = 0;
         uint64_t potentialKingMoves, moveBitboard;
         char toPass;
+
+        Utilities::uint64AsBoard(unsafe);
 
         while (k > 0)
         {
@@ -521,9 +525,14 @@ namespace Moves
                     toPass = 'k';
                 }
 
+                moveBitboard = moveBitboard & ~unsafe;
+
+                // if we are trying to move to an unsafe square its not allowed and dont add the move
+                addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);;
+
                 // same as with the knight we can use add slider move method for the kings
                 // bitboard as well
-                addSliderMovesToMovestring(&temp, moveBitboard, location, toPass);
+                
             }
             k = k >> 1;
             location++;
