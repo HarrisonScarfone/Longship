@@ -65,6 +65,23 @@ int main(){
     uint64AsBoard(Consts::KING_SPAN);
     cout << "KNIGHT_SPAN";
     uint64AsBoard(Consts::KNIGHT_SPAN);
+    cout << "BQC";
+    uint64AsBoard(Consts::BQC);
+    cout << "BQC_INBETWEEN";
+    uint64AsBoard(Consts::BQC_INBETWEEN);
+    cout << "BKC";
+    uint64AsBoard(Consts::BKC);
+    cout << "BKC_INBETWEEN";
+    uint64AsBoard(Consts::BKC_INBETWEEN);
+    cout << "WKC";
+    uint64AsBoard(Consts::WKC);
+    cout << "WKC_INBETWEEN";
+    uint64AsBoard(Consts::WKC_INBETWEEN);
+    cout << "WQC";
+    uint64AsBoard(Consts::WQC);
+    cout << "WQC_INBETWEEN";
+    uint64AsBoard(Consts::WQC_INBETWEEN);
+
 
 
     cout << "************\nShowing array rank masks\n************\n";

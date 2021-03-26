@@ -119,6 +119,8 @@ namespace Utilities
         uint64AsBoard(bitboards.q);
         std::cout << "Kings";
         uint64AsBoard(bitboards.k);
+        std::cout << "En Passant Capture Available";
+        uint64AsBoard(bitboards.enpassant);
         std::cout << "White Pawns";
         uint64AsBoard(bitboards.p & bitboards.white);
         std::cout << "White Rooks";

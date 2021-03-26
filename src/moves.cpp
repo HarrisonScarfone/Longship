@@ -74,7 +74,7 @@ namespace Moves
         {
             moves = 
                 possibleBlackPawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, bitboards.enpassant, playingWhite) +
-                possibleBlackCastleMoves(occupied, bitboards.bkc, bitboards.wqc);
+                possibleBlackCastleMoves(occupied, bitboards.bkc, bitboards.bqc);
         }
 
         moves = moves +
@@ -110,6 +110,7 @@ namespace Moves
         }
     }
 
+    // gonna use U and u for upgrade haha P(romotion) was taken :P
     void addPromotionMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int y1offset, int y2offset, bool playingWhite){
         int index = 0;
 
@@ -118,11 +119,11 @@ namespace Moves
             char toAdd;
             if (playingWhite)
             {
-                toAdd = 'P';
+                toAdd = 'U';
             }
             else
             {
-                toAdd = 'p';
+                toAdd = 'u';
             }
             *moveString += toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PQ" +
                 toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PR" + 
@@ -138,11 +139,11 @@ namespace Moves
                 char toAdd;
                 if (playingWhite)
                 {
-                    toAdd = 'P';
+                    toAdd = 'U';
                 }
                 else
                 {
-                    toAdd = 'p';
+                    toAdd = 'u';
                 }
                 *moveString += toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PQ" +
                     toAdd + std::to_string((index % 8) + y1offset) + std::to_string((index % 8) + y2offset) + "PR" + 
@@ -158,20 +159,20 @@ namespace Moves
         int index = 0;
         while (possibleMoves > 0)
         {
+            index++;
             if ((possibleMoves >> 1) & 1)
             {
                 if (playingWhite)
                 {
-                    *moveString += "P";
+                    *moveString += "E";
                 }
                 else
                 {
-                    *moveString += "p";
+                    *moveString += "e";
                 }
                 *moveString += std::to_string((index % 8) + xoffset) + std::to_string((index % 8) + yoffset) + "EP";
             }
             possibleMoves = possibleMoves >> 1;
-            index++;
         }
     }
 
@@ -196,9 +197,10 @@ namespace Moves
 
         while (index < 64)
         {
-            if (in & 1)
+            temp = temp << 1;
+            if (in & 1 == 1)
             {
-                temp += pow(2, 63 - index);                
+                temp = temp ^ 1;                
             }
             index++;
             in = in >> 1;
@@ -217,7 +219,7 @@ namespace Moves
     {
         uint64_t indexBitboard = indexToBitboard(index);
         uint64_t horizontal = (occupied - (2 * indexBitboard)) ^ reverseUint64_t(reverseUint64_t(occupied) - 2 * reverseUint64_t(indexBitboard));
-        uint64_t vertical = ((occupied & Consts::FileMasks8[(index + 1) % 8]) - (2 * indexBitboard)) ^ reverseUint64_t(reverseUint64_t(occupied & Consts::FileMasks8[(index + 1) % 8]) - (2 * reverseUint64_t(indexBitboard)));
+        uint64_t vertical = ((occupied & Consts::FileMasks8[index % 8]) - (2 * indexBitboard)) ^ reverseUint64_t(reverseUint64_t(occupied & Consts::FileMasks8[index % 8]) - (2 * reverseUint64_t(indexBitboard)));
 
         uint64_t temp = (horizontal & Consts::RankMasks8[index / 8]) | (vertical & Consts::FileMasks8[index % 8]);
 
@@ -698,25 +700,46 @@ namespace Moves
         {
             bitboards.p = bitboards.p & ~*board;
         }
-        else if (bitboards.r & *board > 0)
+        else if ((bitboards.r & *board )> 0)
         {
             bitboards.r = bitboards.r & ~*board;
         }
-        else if (bitboards.n & *board > 0)
+        else if ((bitboards.n & *board) > 0)
         {
             bitboards.n = bitboards.n & ~*board;
         }
-        else if (bitboards.b & *board > 0)
+        else if ((bitboards.b & *board) > 0)
         {
             bitboards.b = bitboards.b & ~*board;
         }
-        else if (bitboards.q & *board > 0)
+        else if ((bitboards.q & *board) > 0)
         {
             bitboards.q = bitboards.q & ~*board;
+        }
+        // this should be ok to allow king removal since its never part of a legal take/move gen
+        else if ((bitboards.k & *board) > 0)
+        {
+            bitboards.k = bitboards.k & ~*board;
         }
 
         // always remove from both colors to avoid weird bug ive been getting can come back to this
         // 4 64 bit ops instead of 3 to check both because we can skip the if
+        bitboards.white = bitboards.white & ~*board;
+        bitboards.black = bitboards.black & ~*board;
+
+        return bitboards;
+    }
+
+    Gamestate::Bitboards removeRookFromCastling(Gamestate::Bitboards bitboards, const uint64_t *board)
+    {
+        // remove the piece, it can only be a rook unless we hit a major error somewhere else so this
+        // shoudl be fine     
+        if (bitboards.r & *board > 0)
+        {
+            bitboards.r = bitboards.r & ~*board;
+        }
+
+        // we can leave the double color removal as its roughly the same for checking which color it is
         bitboards.white = bitboards.white & ~*board;
         bitboards.black = bitboards.black & ~*board;
 
@@ -738,6 +761,16 @@ namespace Moves
         char pieceToMove = move.at(0);
         Gamestate::Bitboards newBitboards = bitboards;
 
+        /*
+        if we get a move that isn't en passant then we can clear the bitboard since
+        that move must be made directly after it becomes available or it can't be made
+
+        if it is a pawn move - 
+            - if it is an en passant take, clear the ep bitboard
+            - if it is a different pawn move, its not ep and the ep board is cleared
+            - if it is a move that opens ep on another file, the logic overwrites the board anyway
+        */
+
         // note the char to int conversion = -48
         int fromX = move.at(1) - 48;
         int fromY = move.at(2) - 48;
@@ -750,26 +783,215 @@ namespace Moves
         uint64_t toBoard = indexToBitboard(toLocation);
         uint64_t fromBoard = indexToBitboard(fromLocation);
 
-        newBitboards = removeLocationSquareFromBitboards(newBitboards, &toBoard);
-        newBitboards = removeLocationSquareFromBitboards(newBitboards, &fromBoard);
+        if (tolower(pieceToMove) != 'e')
+        {
+            newBitboards.enpassant = 0;
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &toBoard);
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &fromBoard);
+        }
+
+        int eFromY;
+        int pawnFromAndTakeX;
+        int eToandTakeY;
+        int eToX;
+
+        int eFromLocation;
+        int eToLocation;
+
+        uint64_t r1Board;
+        uint64_t r2Board;
+        uint64_t addBoard;
+
+        // getting error if I include this inside the switch statement in seperate cases
+        uint64_t rookDestinationBoard;
         
         switch (pieceToMove)
         {
         case 'c':
-            break;
+            /*  comes in like "c0406"
+                default to board gets 06, from board gets 04 which can handle the king movement.
+                need to clear the rook position and add it back 
+
+                can use the kingside or queenside rook location constant based on the too location
+                6 for kingside, 2 for queenside. this also applies to white castling   
+            */
+            newBitboards.k = newBitboards.k | toBoard;
+            newBitboards.black = newBitboards.black | toBoard;
+
+            uint64_t rookDestinationBoard;
+            
+            if (toLocation == 6)
+            {
+                newBitboards = removeRookFromCastling(newBitboards, &Consts::BKC);
+                rookDestinationBoard = indexToBitboard(5);
+            }
+            else if (toLocation == 2)
+            {
+                newBitboards = removeRookFromCastling(newBitboards, &Consts::BQC);
+                rookDestinationBoard = indexToBitboard(3);
+            }
+            else
+            {
+                throw 177;
+            }
+
+            newBitboards.r = newBitboards.r | rookDestinationBoard;
+            newBitboards.black = newBitboards.black | rookDestinationBoard;
+            newBitboards.bkc = false;
+            newBitboards.bqc = false;
+            break;            
         case 'C':
+            // see the 'c' case for explanation
+            newBitboards.k = newBitboards.k | toBoard;
+            newBitboards.white = newBitboards.white | toBoard;
+            
+            if (toLocation == 62)
+            {
+                newBitboards = removeRookFromCastling(newBitboards, &Consts::WKC);
+                rookDestinationBoard = indexToBitboard(61);
+            }
+            else if (toLocation == 58)
+            {
+                newBitboards = removeRookFromCastling(newBitboards, &Consts::WQC);
+                rookDestinationBoard = indexToBitboard(59);
+            }
+            else
+            {
+                throw 177;
+            }
+
+            newBitboards.r = newBitboards.r | rookDestinationBoard;
+            newBitboards.white = newBitboards.white | rookDestinationBoard;
+            newBitboards.wkc = false;
+            newBitboards.wqc = false;
             break;
         case 'e':
+            /*
+            en passant can only occur in two locations.  the to and from locations
+            are going to need more calculation logic than can be stored in a 5 char string.
+
+            could maybe change the movestring to something this can use easier
+
+            for now - fromX and fromY translate to the fromY and toY
+            can only take from a single rank, 4 -> 5 for black, 3 -> 2 for white
+            */
+            eFromY = fromX;
+            pawnFromAndTakeX = 4;
+            eToandTakeY = fromY;
+            eToX = 5;
+
+            eFromLocation = (fromX * 8) + fromY;
+            eToLocation = (toX * 8) + toY;
+
+            r1Board = indexToBitboard((pawnFromAndTakeX * 8) + eFromY);
+            r2Board = indexToBitboard((pawnFromAndTakeX * 8) + eToandTakeY);
+            addBoard = indexToBitboard((eToX * 8) + eToandTakeY);
+
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &r1Board);
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &r2Board);
+            newBitboards.p = newBitboards.p | addBoard;
+            newBitboards.black = newBitboards.black | addBoard;
+            newBitboards.enpassant = 0;
             break;
         case 'E':
+            eFromY = fromX;
+            pawnFromAndTakeX = 3;
+            eToandTakeY = fromY;
+            eToX = 2;
+
+            eFromLocation = (fromX * 8) + fromY;
+            eToLocation = (toX * 8) + toY;
+
+            r1Board = indexToBitboard((pawnFromAndTakeX * 8) + eFromY);
+            r2Board = indexToBitboard((pawnFromAndTakeX * 8) + eToandTakeY);
+            addBoard = indexToBitboard((eToX * 8) + eToandTakeY);
+
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &r1Board);
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &r2Board);
+            newBitboards.p = newBitboards.p | addBoard;
+            newBitboards.white = newBitboards.white | addBoard;
+            newBitboards.enpassant = 0;
+            break;
+        case 'u':
+            /*
+            fromX and fromY translate to fromY and toY same as ep
+            the fromX can only ever be 6 and toX can only ever be 7
+            */
+            toY = fromY;
+            fromY = fromX;
+            fromX = 6;
+            toX = 7;
+
+            fromBoard = indexToBitboard((fromX * 8) + fromY);
+            toBoard = indexToBitboard((toX * 8) + toY);
+
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &fromBoard);
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &toBoard);
+            
+            // to and from locations are now cleared.  we must add back the chosen promo
+            // piece at the location of the toBoard
+            switch (move.at(4))
+            {
+            case 'R':
+                newBitboards.r = newBitboards.r | toBoard;
+                break;
+            case 'B':
+                newBitboards.b = newBitboards.b | toBoard;
+                break;
+            case 'N':
+                newBitboards.n = newBitboards.n | toBoard;
+            case 'Q':
+                newBitboards.q = newBitboards.q | toBoard;
+            }
+
+            // now add the black or white piece holder
+            newBitboards.black = newBitboards.black | toBoard;
+            break;
+        case 'U':
+            toY = fromY;
+            fromY = fromX;
+            fromX = 1;
+            toX = 0;
+
+            fromBoard = indexToBitboard((fromX * 8) + fromY);
+            toBoard = indexToBitboard((toX * 8) + toY);
+
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &fromBoard);
+            newBitboards = removeLocationSquareFromBitboards(newBitboards, &toBoard);
+            
+            switch (move.at(4))
+            {
+            case 'R':
+                newBitboards.r = newBitboards.r | toBoard;
+                break;
+            case 'B':
+                newBitboards.b = newBitboards.b | toBoard;
+                break;
+            case 'N':
+                newBitboards.n = newBitboards.n | toBoard;
+            case 'Q':
+                newBitboards.q = newBitboards.q | toBoard;
+            }
+            
+            newBitboards.white = newBitboards.white | toBoard;
             break;
         case 'p':
             newBitboards.p = newBitboards.p | toBoard;
             newBitboards.black = newBitboards.black | toBoard;
+
+            if (fromX == 1 && toX == 3)
+            {
+                newBitboards.enpassant = Consts::FileMasks8[fromY];
+            }
             break;
         case 'P':
             newBitboards.p = newBitboards.p | toBoard;
             newBitboards.white = newBitboards.white | toBoard;
+
+            if (fromX == 6 & toX == 4)
+            {
+                newBitboards.enpassant = Consts::FileMasks8[fromY];
+            }
             break;
         case 'r':
             newBitboards.r = newBitboards.r | toBoard;

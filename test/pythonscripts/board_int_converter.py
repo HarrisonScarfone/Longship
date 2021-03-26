@@ -21,7 +21,13 @@ def decimal_to_binary_board(num: int) -> None:
     return None
     
 # example usage
-# decimal_to_binary_board(576460752303423488)
+# print("occupied")
+decimal_to_binary_board(288230376151711744)
+decimal_to_binary_board(1152921504606846976)
+decimal_to_binary_board(9295429630892703873)
+decimal_to_binary_board(1152921504606846992)
+
+
 
 def board_to_decimal(board: str) -> None:
     board = board.replace("\n", "")
@@ -50,8 +56,41 @@ def board_to_decimal(board: str) -> None:
 # """
 # board_to_decimal(newstr)
 
-def decimal_to_binary(num: int) -> None:
-    print(bin(int))
+def decimal_to_64binary(num) -> None:
+    string = ""
+    
+    count = 0
+    while count < 64:
+        if num % 2 == 0:
+            string =  "0" + string
+        else:
+            string = "1" + string
+        num = num // 2
+        
+        count += 1
+        
+    
+    print(string)
+    return None
 
 # example usage
-# decimal_to_binary(12345)
+# decimal_to_64binary(18446462598732906495)
+# decimal_to_64binary(18446462598732906496)
+# decimal_to_64binary(140737488420863)
+# decimal_to_64binary(72340172838076673)
+# print(bin(576179277326778368))
+
+def binary_to_decimal(numstr) -> None:
+    count = 0
+    num = 0
+    while numstr:
+        if numstr[-1] == "1":
+            num += 2 ** count
+        count += 1
+        numstr = numstr[:-1]
+    
+    print(num)
+    return None
+
+# must feed argument as a string
+# binary_to_decimal("0000000000000000100000000000000000000000000000001111111111100000")

@@ -27,10 +27,11 @@ namespace Consts
     const uint64_t BKC = 0x80;
     const uint64_t BKC_INBETWEEN = 0x60;
     
-    const uint64_t WQC = 0x8000000000000000;
+    const uint64_t WQC = 0x100000000000000;
     const uint64_t WQC_INBETWEEN = 0xE00000000000000;
-    const uint64_t WKC = 0x100000000000000;
+    const uint64_t WKC = 0x8000000000000000;
     const uint64_t WKC_INBETWEEN = 0x6000000000000000;
+
 
     // rank 1 to rank 8
     const uint64_t RankMasks8[] =
