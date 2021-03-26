@@ -64,7 +64,7 @@ namespace Moves
         theirQueen = bitboards.q & theirPieces;
         theirKing = bitboards.k & theirPieces;
 
-        unsafe = unsafeSpaces(occupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, playingWhite);
+        unsafe = unsafeSpaces(occupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, myKing, playingWhite);
 
         if (playingWhite == 1)
         {
@@ -85,8 +85,54 @@ namespace Moves
             possibleQueenMoves(occupied, notMyPieces, myQueen, playingWhite) + 
             possibleKnightMoves(notMyPieces, myKnight, playingWhite) +
             possibleKingMoves(notMyPieces, myKing, unsafe, playingWhite);   
+
+        /*
+        we need to be able to reduce our moveset if we are in check. note that the king already can't move into check.
+
+        we know what square the king is on and what squares are unsafe.  if the king is on an unsafe square, we can block 
+        any move that doesn't make that square unsafe by checking to see if the king is still unsafe after that move.
+
+        for now, we can pull moves from the movestring and check them after. i dont think your really losing much here
+        because you have to generate the move anyway and you have to generate the unsafe and check it at some point
+
+        the reduced movestring can also be used to determine the games ending
+        */
+
+        std::cout << moves << "\n";
+
+        std::string finalMoves = "";
+        int i = 0;
+        while (moves.length() > i)
+        {
+            std::string currMove = moves.substr(i, 5);
+            Gamestate::Bitboards potentialMoveBitboards = makeMove(bitboards, currMove);
+
+            uint64_t newOccupied = (potentialMoveBitboards.p | potentialMoveBitboards.r | potentialMoveBitboards.n | potentialMoveBitboards.b | potentialMoveBitboards.q | potentialMoveBitboards.k);
+
+            if (playingWhite == true)
+            {
+                myKing = potentialMoveBitboards.k & potentialMoveBitboards.white;
+            }
+            else
+            {
+                myKing = potentialMoveBitboards.k & potentialMoveBitboards.black;
+            }
+
+            unsafe = unsafeSpaces(newOccupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, myKing, playingWhite);
             
-        return moves;    
+            std::cout << currMove << "\n";
+            Utilities::uint64AsBoard(unsafe);
+            Utilities::uint64AsBoard(myKing);
+            std::cout << ((unsafe & myKing) == 0) << "\n";
+
+            if ((myKing & unsafe) == 0)
+            {
+                finalMoves += currMove;
+            }
+            i += 5;
+        }
+            
+        return finalMoves;    
     }
 
     void addPawnMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int x1offset, int y1offset, int x2offset, int y2offset, bool playingWhite)
@@ -553,11 +599,13 @@ namespace Moves
         }
     }
 
-    uint64_t unsafeSpaces(uint64_t occupied, uint64_t theirPawns, uint64_t theirRook, uint64_t theirKnight, uint64_t theirBishop, uint64_t theirQueen, uint64_t theirKing, bool playingWhite)
+    uint64_t unsafeSpaces(uint64_t occupied, uint64_t theirPawns, uint64_t theirRook, uint64_t theirKnight, uint64_t theirBishop, uint64_t theirQueen, uint64_t theirKing, uint64_t myKing, bool playingWhite)
     {
         uint64_t unsafe;
         uint64_t temp;
         int location;
+
+        occupied = occupied & ~myKing;
 
         /*
         the variable temp carries all through and used for control calculations at each step

@@ -45,7 +45,7 @@ void Game::playCLIGame()
 
         std::string possibleMoves;
         possibleMoves = Moves::possibleMoves(gameHistory.at(turnCount), whiteToPlay);
-        Utilities::showSplitMovestring(possibleMoves);
+        // Utilities::showSplitMovestring(possibleMoves);
 
         std::cout << getTurnColorString(whiteToPlay) << "'s turn. " << "There are " << possibleMoves.length() / 5 << " moves.\n";
         std::cout << possibleMoves << "\n";
