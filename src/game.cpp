@@ -47,6 +47,19 @@ void Game::playCLIGame()
         possibleMoves = Moves::possibleMoves(gameHistory.at(turnCount), whiteToPlay);
         // Utilities::showSplitMovestring(possibleMoves);
 
+        if (possibleMoves.length() == 0)
+        {
+            if (whiteToPlay == true)
+            {
+                std::cout << "Black wins by checkmate.";
+            }
+            else
+            {
+                std::cout << "White wins by checkmate.";
+            }
+            break;
+        }
+
         std::cout << getTurnColorString(whiteToPlay) << "'s turn. " << "There are " << possibleMoves.length() / 5 << " moves.\n";
         std::cout << possibleMoves << "\n";
         std::cout << "Select a move: ";

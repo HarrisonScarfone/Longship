@@ -32,6 +32,9 @@ namespace Consts
     const uint64_t WKC = 0x8000000000000000;
     const uint64_t WKC_INBETWEEN = 0x6000000000000000;
 
+    const uint64_t BLACK_KING_START = 16;
+    const uint64_t WHITE_KING_START = 1152921504606846976;
+
 
     // rank 1 to rank 8
     const uint64_t RankMasks8[] =

@@ -70,13 +70,13 @@ namespace Moves
         {
             moves = 
                 possibleWhitePawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, bitboards.enpassant, playingWhite) + 
-                possibleWhiteCastleMoves(occupied, bitboards.wkc, bitboards.wqc);
+                possibleWhiteCastleMoves(occupied, unsafe, myKing, bitboards.wkc, bitboards.wqc);
         }
         else
         {
             moves = 
                 possibleBlackPawnMoves(myPawns, theirPawns, capturablePieces, emptySpaces, bitboards.enpassant, playingWhite) +
-                possibleBlackCastleMoves(occupied, bitboards.bkc, bitboards.bqc);
+                possibleBlackCastleMoves(occupied, unsafe, myKing, bitboards.bkc, bitboards.bqc);
         }
 
         moves = moves +
@@ -98,8 +98,6 @@ namespace Moves
         the reduced movestring can also be used to determine the games ending
         */
 
-        std::cout << moves << "\n";
-
         std::string finalMoves = "";
         int i = 0;
         while (moves.length() > i)
@@ -120,11 +118,6 @@ namespace Moves
 
             unsafe = unsafeSpaces(newOccupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, myKing, playingWhite);
             
-            std::cout << currMove << "\n";
-            Utilities::uint64AsBoard(unsafe);
-            Utilities::uint64AsBoard(myKing);
-            std::cout << ((unsafe & myKing) == 0) << "\n";
-
             if ((myKing & unsafe) == 0)
             {
                 finalMoves += currMove;
@@ -353,9 +346,7 @@ namespace Moves
         int index;
 
         // check move up single space
-        temp = (myPawns << 8) & emptySpaces & ~Consts::RANK_1;
-        // Utilities::uint64AsBoard(myPawns);
-        // Utilities::uint64AsBoard(temp);
+        temp = (myPawns << 8) & emptySpaces & ~Consts::RANK_1;;
         addPawnMovesToMovestring(&moves, temp, -1, 0, 0, 0, playingWhite);
 
         // two squares forward
@@ -538,8 +529,6 @@ namespace Moves
         uint64_t potentialKingMoves, moveBitboard;
         char toPass;
 
-        Utilities::uint64AsBoard(unsafe);
-
         while (k > 0)
         {
             if (k & 1)
@@ -707,28 +696,28 @@ namespace Moves
         return unsafe;
     }
 
-    std::string possibleWhiteCastleMoves(uint64_t occupied, bool wkc, bool wqc)
+    std::string possibleWhiteCastleMoves(uint64_t occupied, uint64_t unsafe, uint64_t myKing, bool wkc, bool wqc)
     {
         std::string temp = "";
-        if (wkc == 1 && ((occupied & Consts::WKC_INBETWEEN) == 0))
+        if (wkc == 1 && ((occupied & Consts::WKC_INBETWEEN) == 0) && ((unsafe & Consts::WKC_INBETWEEN) == 0) && ((myKing & Consts::WHITE_KING_START) > 0))
         {
             temp += "C7476";
         }
-        if (wqc == 1 && ((occupied & Consts::WQC_INBETWEEN) == 0))
+        if (wqc == 1 && ((occupied & Consts::WQC_INBETWEEN) == 0) && ((unsafe & Consts::WQC_INBETWEEN) == 0) && ((myKing & Consts::WHITE_KING_START) > 0))
         {
             temp += "C7472";
         }
         return temp;
     }
 
-    std::string possibleBlackCastleMoves(uint64_t occupied, bool bkc, bool bqc)
+    std::string possibleBlackCastleMoves(uint64_t occupied, uint64_t unsafe, uint64_t myKing, bool bkc, bool bqc)
     {
         std::string temp = "";
-        if (bkc == 1 && ((occupied & Consts::BKC_INBETWEEN) == 0))
+        if (bkc == 1 && ((occupied & Consts::BKC_INBETWEEN) == 0) && ((unsafe & Consts::BKC_INBETWEEN) == 0) && ((myKing & Consts::BLACK_KING_START) > 0))
         {
             temp += "c0406";
         }
-        if (bqc == 1 && ((occupied & Consts::BQC_INBETWEEN) == 0))
+        if (bqc == 1 && ((occupied & Consts::BQC_INBETWEEN) == 0) && ((unsafe & Consts::BQC_INBETWEEN) == 0) && ((myKing & Consts::BLACK_KING_START) > 0))
         {
             temp += "c0402";
         }

@@ -22,10 +22,10 @@ def decimal_to_binary_board(num: int) -> None:
     
 # example usage
 # print("occupied")
-decimal_to_binary_board(288230376151711744)
-decimal_to_binary_board(1152921504606846976)
-decimal_to_binary_board(9295429630892703873)
-decimal_to_binary_board(1152921504606846992)
+decimal_to_binary_board(16)
+# decimal_to_binary_board(1152921504606846976)
+# decimal_to_binary_board(9295429630892703873)
+# decimal_to_binary_board(1152921504606846992)
 
 
 
@@ -45,16 +45,16 @@ def board_to_decimal(board: str) -> None:
     
 # example usage   
 # example of input board string
-# newstr = """00000000
-# 00000000
-# 00000000
-# 00000000
-# 00000000
-# 00000000
-# 00000000
-# 00010000
-# """
-# board_to_decimal(newstr)
+newstr = """00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00010000
+"""
+board_to_decimal(newstr)
 
 def decimal_to_64binary(num) -> None:
     string = ""
