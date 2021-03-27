@@ -13,12 +13,10 @@
 namespace Search
 {
 
-    std::string negaMax(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay)
+    int negaMax(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay)
     {
         int maxScore = search(bitboards, 0, whiteToPlay);
         return getMove(bitboards, 0, whiteToPlay, maxScore);
-
-
     }
 
     int search(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay)
@@ -29,7 +27,6 @@ namespace Search
         }
 
         int max = INT32_MIN;
-        std::string move;
 
         std::string moves = Moves::possibleMoves(bitboards, whiteToPlay);
 
@@ -40,15 +37,14 @@ namespace Search
             if (score > max)
             {
                 max = score;
-                move = moves.substr(i, 5);
             }
         }
         return max;
     }
 
-    std::string getMove(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay, int lookingFor)
+    int getMove(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay, int lookingFor)
     {
-        std::string move;
+        int move;
 
         if (depth == 4)
         {
@@ -63,9 +59,10 @@ namespace Search
         {
             Gamestate::Bitboards variation = Moves::makeMove(bitboards, moves.substr(i, 5));
             int score = -1 * search(variation, depth + 1, whiteToPlay);
-            if (score == lookingFor && i < moves.length() - 5)
+            if (score > max)
             {
-                move = move.substr(i, 5);
+                max = score;
+                move = i;
             }
         }
         return move;

@@ -10,8 +10,8 @@ namespace Search
 {
 
     int search(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay);
-    std::string getMove(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay, int lookingFor);
-    std::string negaMax(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay);
+    int getMove(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay, int lookingFor);
+    int negaMax(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay);
 }
 
 

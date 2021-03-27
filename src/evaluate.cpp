@@ -5,10 +5,7 @@
 
 /*
 
-Planning on using principal variation search for move tree traversal
-which requires a symmetric scoring system (i.e. scoring function applies
-to either side).  Once a score is obtained for each side, the returned
-score is a subtraction of the players side from the opposing side
+Scoring system
 
 */
 

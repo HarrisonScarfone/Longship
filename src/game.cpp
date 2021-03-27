@@ -37,6 +37,7 @@ void Game::playCLIGame()
     int turnCount = 0;
 
     int positionScore = 0;
+    int moveIndex = -1;
 
     std::string move;
     std::string possibleMoves;
@@ -73,9 +74,12 @@ void Game::playCLIGame()
         positionScore = Evaluate::positionScore(currBitboards, whiteToPlay);
 
         std::cout << getTurnColorString(whiteToPlay) << "'s turn. " << "There are " << possibleMoves.length() / 5 << " moves.\n";
-        std::cout << possibleMoves << "\n";
         std::cout << "Current position evaluated at: " << positionScore << "\n";
-        std::cout << "We recommend move at index " << Search::negaMax(currBitboards, 0, whiteToPlay) << "\n";
+
+        moveIndex = Search::negaMax(currBitboards, 0, whiteToPlay); 
+
+        std::cout << "Move string is " << possibleMoves.length() <<  " index is: " << moveIndex << "\n";
+        std::cout << "We recommend " << possibleMoves.substr(moveIndex, 5) << "\n";
         std::cout << "Select a move: ";
         std::cin >> move;
         std::cout << "\n";
