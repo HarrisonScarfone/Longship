@@ -75,7 +75,7 @@ void Game::playCLIGame()
         std::cout << getTurnColorString(whiteToPlay) << "'s turn. " << "There are " << possibleMoves.length() / 5 << " moves.\n";
         std::cout << possibleMoves << "\n";
         std::cout << "Current position evaluated at: " << positionScore << "\n";
-        std::cout << "We recommend move at index " << Search::pvSearch(currBitboards, 0, 0, 0, whiteToPlay) << "\n";
+        std::cout << "We recommend move at index " << Search::negaMax(currBitboards, 0, whiteToPlay) << "\n";
         std::cout << "Select a move: ";
         std::cin >> move;
         std::cout << "\n";

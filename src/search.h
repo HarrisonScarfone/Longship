@@ -1,15 +1,17 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
+#include <string>
+
 #include "gamestate.h"
 
 
 namespace Search
 {
 
-    int nwSearch(Gamestate::Bitboards bitboards, int beta, int depth, bool whiteToPlay);
-    int pvSearch(Gamestate::Bitboards bitboards, int alpha, int beta, int depth, bool whiteToPlay);
-
+    int search(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay);
+    std::string getMove(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay, int lookingFor);
+    std::string negaMax(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay);
 }
 
 
