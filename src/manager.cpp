@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <math.h>
+#include <vector>
 
 #include "manager.h"
 #include "boardutils.h"
@@ -32,14 +33,14 @@ Manager::Manager()
 void Manager::setBoard()
 {
     std::string tmp_board[8][8] = {
-        {" "," "," "," "," "," "," "," "},
-        {" "," "," ","p","p","p"," "," "},
-        {" "," "," ","p","k","p"," "," "},
-        {" "," "," ","p"," ","p"," "," "},
+        {"r","n","b","q","k","b","n","r"},
+        {"p","p","p","p","p","p","p","p"},
         {" "," "," "," "," "," "," "," "},
         {" "," "," "," "," "," "," "," "},
-        {"P","P","P","Q","P","P","P","P"},
-        {"R"," "," "," ","K"," "," ","R"}};
+        {" "," "," "," "," "," "," "," "},
+        {" "," "," "," "," "," "," "," "},
+        {"P","P","P","P","P","P","P","P"},
+        {"R","N","B","Q","K","B","N","R"}};
 
 
         // {" "," "," "," "," "," "," "," "},
@@ -255,4 +256,25 @@ void Manager::printArrayBoard()
         std::cout << "|" << "\n";
     }
     std::cout << "---------------------------------" << "\n";
+}
+
+void Manager::setWithFENString(std::string fen)
+{
+
+    // TODO
+
+}
+
+std::vector<std::string> Manager::moveStringToVector(std::string moveString)
+{
+    int i = 0;
+    std::vector<std::string> moveVector;
+
+    while (i < moveString.length())
+    {
+        moveVector.push_back(moveString.substr(i, 5));
+        i += 5;
+    }
+
+    return moveVector;
 }

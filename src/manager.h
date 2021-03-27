@@ -24,6 +24,8 @@ class Manager
         void showBitboardValues();
         void updateArrayFromBitboard(Gamestate::Bitboards bitboards);
         Gamestate::Bitboards getBitboards();
+        void setWithFENString(std::string fen);
+        std::vector<std::string> moveStringToVector(std::string moveString);
 
 };
 

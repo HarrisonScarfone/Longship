@@ -146,4 +146,12 @@ namespace Utilities
         std::cout << "black Kings";
         uint64AsBoard(bitboards.k & bitboards.black);
     }
+
+    void showMoveVector(std::vector<std::string> moveVector)
+    {
+        for (int i = 0; i < moveVector.size(); i++)
+        {
+            std::cout << moveVector.at(i) << "\n";
+        }
+    }
 };

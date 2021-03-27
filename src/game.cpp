@@ -8,6 +8,8 @@
 #include "manager.h"
 #include "moves.h"
 #include "utilities.h"
+#include "evaluate.h"
+#include "search.h"
 
 Game::Game(){
     gm = Manager();
@@ -29,9 +31,17 @@ std::string Game::getTurnColorString(bool whiteToPlay){
 void Game::playCLIGame()
 {
 
+    int MAX_SEARCH_DEPTH = 5;
+
     bool whiteToPlay = true;
     int turnCount = 0;
+
+    int positionScore = 0;
+
     std::string move;
+    std::string possibleMoves;
+    std::vector<std::string> moveVector;
+
     Gamestate::Bitboards currBitboards;
     Gamestate::Bitboards newBitboards;
     currBitboards = gameHistory.at(0);
@@ -43,9 +53,9 @@ void Game::playCLIGame()
         gm.updateArrayFromBitboard(currBitboards);
         gm.printArrayBoard();
 
-        std::string possibleMoves;
         possibleMoves = Moves::possibleMoves(gameHistory.at(turnCount), whiteToPlay);
         // Utilities::showSplitMovestring(possibleMoves);
+        moveVector = gm.moveStringToVector(possibleMoves);
 
         if (possibleMoves.length() == 0)
         {
@@ -60,8 +70,12 @@ void Game::playCLIGame()
             break;
         }
 
+        positionScore = Evaluate::positionScore(currBitboards, whiteToPlay);
+
         std::cout << getTurnColorString(whiteToPlay) << "'s turn. " << "There are " << possibleMoves.length() / 5 << " moves.\n";
         std::cout << possibleMoves << "\n";
+        std::cout << "Current position evaluated at: " << positionScore << "\n";
+        std::cout << "We recommend move at index " << Search::pvSearch(currBitboards, 0, 0, 0, whiteToPlay) << "\n";
         std::cout << "Select a move: ";
         std::cin >> move;
         std::cout << "\n";
