@@ -26,8 +26,10 @@ where the rows/columns are as depicted in the command line print out.
 
 Special move notation is as follows (remains 5 char string):
 
-Promotion - (P for white, p for black)(from column)(to column)P(piece to promote, not case sensitive, Q, B, N, R)
+Promotion - (U for white, u for black)(from column)(to column)P(piece to promote, not case sensitive, Q, B, N, R)
 En Passant - (E for white, e for black)(from column)(to column)EP
 Castling - (C for white, c for black)(king from row)(king from column)(king to row)(king from column)
+
+Examples of valid strings: P6050 U11PQ E23EP c0406 Q7351
 
 Will fiddle with the notation as UCI gets implmented (next on to do list).
