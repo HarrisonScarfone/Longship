@@ -244,18 +244,45 @@ Gamestate::Bitboards Manager::getBitboards(){
     return currBitboards;
 }
 
+// void Manager::printArrayBoard()
+// {
+//     for (int i = 0; i < 8; i++)
+//     {
+//         std::cout << "---------------------------------" << "\n";
+//         for (int j = 0; j < 8; j++)
+//         {
+//             std::cout << "| " << board[i][j] << " ";
+//         }
+//         std::cout << "|" << "\n";
+//     }
+//     std::cout << "---------------------------------" << "\n";
+// }
+
 void Manager::printArrayBoard()
 {
     for (int i = 0; i < 8; i++)
-    {
-        std::cout << "---------------------------------" << "\n";
-        for (int j = 0; j < 8; j++)
+    {   
+        if (i < 8)
         {
-            std::cout << "| " << board[i][j] << " ";
+            std::cout << "---------------------------------" << "\n";
         }
-        std::cout << "|" << "\n";
+        
+        for (int j = 0; j < 9; j++)
+        {
+            if (j < 8)
+            {
+                std::cout << "| " << board[i][j] << " ";
+            }
+            else
+            {
+                std::cout << "| " << i << "\n";
+            }
+            
+        }
     }
+
     std::cout << "---------------------------------" << "\n";
+    std::cout << "  0   1   2   3   4   5   6   7\n";
 }
 
 void Manager::setWithFENString(std::string fen)
