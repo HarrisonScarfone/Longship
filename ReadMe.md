@@ -4,6 +4,8 @@ Still doesn't have an official name, but it will one day.
 
 ## To Play a Command Line Game
 
+NOTE THAT IT WILL CURRENTLY ALLOW WHITE TO MAKE WHATEVER MOVE IT WANTS (regardless of legality).  It's useful for debugging.
+
 Forgive the super hacky way I have of running the currently unfinished project.
 
 1. Pull repo.
