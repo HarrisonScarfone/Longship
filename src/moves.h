@@ -2,12 +2,13 @@
 #define MOVES_H
 
 #include <string>
+#include <vector>
 
 #include "gamestate.h"
 
 namespace Moves
 {
-    std::string possibleMoves(Gamestate::Bitboards &bitboards, bool playingWhite);
+    std::vector<std::string> possibleMoves(Gamestate::Bitboards &bitboards, bool playingWhite);
     std::string possibleWhitePawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePieces, uint64_t emptySpaces, uint64_t enpassant, bool playingWhite);   
     std::string possibleBlackPawnMoves(uint64_t myPawns, uint64_t theirPawns, uint64_t capturablePeices, uint64_t emptySpaces, uint64_t enpassant, bool playingWhite);
     void addPawnMovesToMovestring(std::string *moveString, uint64_t possibleMoves, int x1offset, int y1offset, int x2offset, int y2offset, bool playingWhite);

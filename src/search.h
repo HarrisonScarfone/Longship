@@ -2,6 +2,7 @@
 #define SEARCH_H
 
 #include <string>
+#include <vector>
 
 #include "gamestate.h"
 
@@ -9,10 +10,16 @@
 namespace Search
 {
 
-    int search(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay);
-    int getMove(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay, int lookingFor);
-    int negaMax(Gamestate::Bitboards bitboards, int depth, bool whiteToPlay);
-}
+    struct SearchReturn
+    {
+        std::string selectedMove;
+        std::vector<std::string> allBestMoves;
+    };
 
+    std::vector<std::string> negaMaxHandler(Gamestate::Bitboards bitboards, int alpha, int beta, int depth, bool playingWhite);
+    int negaMaxAB(Gamestate::Bitboards bitboards, int depth, int alpha, int beta, bool playingWhite);
+    SearchReturn getMove(Gamestate::Bitboards bitboards, bool playingWhite);
+
+}
 
 #endif

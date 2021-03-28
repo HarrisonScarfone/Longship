@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <math.h>
+#include <vector>
 
 #include "moves.h"
 #include "consts.h"
@@ -22,7 +23,7 @@ Magic Numbers in the file:
 
 namespace Moves
 {
-    std::string possibleMoves(Gamestate::Bitboards &bitboards, bool playingWhite)
+    std::vector<std::string> possibleMoves(Gamestate::Bitboards &bitboards, bool playingWhite)
     {
         uint64_t capturablePieces = 
             (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q);
@@ -98,7 +99,7 @@ namespace Moves
         the reduced movestring can also be used to determine the games ending
         */
 
-        std::string finalMoves = "";
+        std::vector<std::string> finalMoves;
         int i = 0;
         while (moves.length() > i)
         {
@@ -120,7 +121,7 @@ namespace Moves
             
             if ((myKing & unsafe) == 0)
             {
-                finalMoves += currMove;
+                finalMoves.push_back(currMove);
             }
             i += 5;
         }
@@ -1101,8 +1102,8 @@ namespace Moves
             newBitboards.black = newBitboards.black | toBoard;
             break;
         case 'K':
-            newBitboards.k = newBitboards.p | toBoard;
-            newBitboards.k = newBitboards.white | toBoard;
+            newBitboards.k = newBitboards.k | toBoard;
+            newBitboards.white = newBitboards.white | toBoard;
             break;
         default:
             throw 111;

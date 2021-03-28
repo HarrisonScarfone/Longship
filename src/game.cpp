@@ -40,7 +40,7 @@ void Game::playCLIGame()
     int moveIndex = -1;
 
     std::string move;
-    std::string possibleMoves;
+    std::vector<std::string> possibleMoves;
     std::vector<std::string> moveVector;
 
     Gamestate::Bitboards currBitboards;
@@ -56,9 +56,8 @@ void Game::playCLIGame()
 
         possibleMoves = Moves::possibleMoves(gameHistory.at(turnCount), whiteToPlay);
         // Utilities::showSplitMovestring(possibleMoves);
-        moveVector = gm.moveStringToVector(possibleMoves);
 
-        if (possibleMoves.length() == 0)
+        if (possibleMoves.size() == 0)
         {
             if (whiteToPlay == true)
             {
@@ -73,18 +72,30 @@ void Game::playCLIGame()
 
         positionScore = Evaluate::positionScore(currBitboards, whiteToPlay);
 
-        std::cout << getTurnColorString(whiteToPlay) << "'s turn. " << "There are " << possibleMoves.length() / 5 << " moves.\n";
+        std::cout << getTurnColorString(whiteToPlay) << "'s turn. \n";
         std::cout << "Current position evaluated at: " << positionScore << "\n";
 
-        moveIndex = Search::negaMax(currBitboards, 0, whiteToPlay); 
+        if (!whiteToPlay)
+        {
+            Search::SearchReturn searchReturn = Search::getMove(currBitboards, whiteToPlay);
+            newBitboards = Moves::makeMove(currBitboards, searchReturn.selectedMove);
+        }
 
-        std::cout << "Move string is " << possibleMoves.length() <<  " index is: " << moveIndex << "\n";
-        std::cout << "We recommend " << possibleMoves.substr(moveIndex, 5) << "\n";
-        std::cout << "Select a move: ";
-        std::cin >> move;
-        std::cout << "\n";
+        else
+        {
+            // std::cout << "Best move vector size is " << searchReturn.allBestMoves.size() << "\n";
+            // // Utilities::showMoveVector(searchReturn.allBestMoves);
+            // std::cout << "We recommend " << searchReturn.selectedMove << "\n";
+            std::cout << "Enter a move: ";
+            std::cin >> move;
+            std::cout << "\n";
 
-        newBitboards = Moves::makeMove(currBitboards, move);
+            newBitboards = Moves::makeMove(currBitboards, move);
+            // Utilities::showAllBitboardsAsBoards(newBitboards);
+        }
+        
+
+
 
         gameHistory.push_back(newBitboards);
         currBitboards = newBitboards;
@@ -95,6 +106,3 @@ void Game::playCLIGame()
     }
 
 }
-
-
-
