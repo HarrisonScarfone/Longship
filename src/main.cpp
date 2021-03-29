@@ -7,10 +7,15 @@
 #include "moves.h"
 #include "game.h"
 #include "consts.h"
+#include "uci.h"
 
 int main(){
 
-    Game g = Game();
-    g.playCLIGame();
+    // Game g = Game();
+    // g.playCLIGame();
+
+    UCI g = UCI();
+    g.uciGo();    
+
 
 }

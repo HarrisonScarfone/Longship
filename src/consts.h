@@ -2,6 +2,7 @@
 #define CONSTS_H
 
 #include <cstdint>
+#include <map>
 
 namespace Consts
 {
