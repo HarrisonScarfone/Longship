@@ -111,13 +111,34 @@ namespace Moves
             if (playingWhite == true)
             {
                 myKing = potentialMoveBitboards.k & potentialMoveBitboards.white;
+                unsafe = unsafeSpaces(
+                    newOccupied, 
+                    potentialMoveBitboards.p & potentialMoveBitboards.black, 
+                    potentialMoveBitboards.r & potentialMoveBitboards.black, 
+                    potentialMoveBitboards.n & potentialMoveBitboards.black, 
+                    potentialMoveBitboards.b & potentialMoveBitboards.black, 
+                    potentialMoveBitboards.q & potentialMoveBitboards.black, 
+                    potentialMoveBitboards.k & potentialMoveBitboards.black, 
+                    myKing, 
+                    playingWhite
+                );
             }
             else
             {
                 myKing = potentialMoveBitboards.k & potentialMoveBitboards.black;
-            }
+                unsafe = unsafeSpaces(
+                    newOccupied, 
+                    potentialMoveBitboards.p & potentialMoveBitboards.white, 
+                    potentialMoveBitboards.r & potentialMoveBitboards.white, 
+                    potentialMoveBitboards.n & potentialMoveBitboards.white, 
+                    potentialMoveBitboards.b & potentialMoveBitboards.white, 
+                    potentialMoveBitboards.q & potentialMoveBitboards.white, 
+                    potentialMoveBitboards.k & potentialMoveBitboards.white, 
+                    myKing, 
+                    playingWhite
+                );
 
-            unsafe = unsafeSpaces(newOccupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, myKing, playingWhite);
+            }
             
             if ((myKing & unsafe) == 0)
             {
@@ -253,8 +274,18 @@ namespace Moves
 
     uint64_t indexToBitboard(int index)
     {
-        uint64_t temp = 1;
-        return temp << index;
+        // uint64_t temp = 1;
+        // return temp << index;
+
+        try
+        {
+            return Consts::intToUINT.at(index);
+        }
+        catch(...)
+        {
+            return 0;
+        }
+        
     }
 
     uint64_t hvMoves(int index, uint64_t occupied)

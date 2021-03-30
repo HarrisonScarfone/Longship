@@ -31,7 +31,7 @@ class UCI
         std::string engineToUCIMove(std::string move);
         std::string letterToNum(char letter);
         std::string numToLetter(char letter);
-        std::string uciMoveToEngineMove(std::vector<std::string> possibleMoves, std::string token);
+        std::string uciMoveToEngineMove(std::vector<std::string> possibleMoves, std::string token, bool playingWhite);
         std::string uciNumToEngineNum(char num);
         std::string engineNumToUCINum(char num);
 };
