@@ -2,34 +2,21 @@
 
 Still doesn't have an official name, but it will one day.
 
-## To Play a Command Line Game
+## Instructions on Playing a GUI Game Against the Engine
 
-NOTE THAT IT WILL CURRENTLY ALLOW WHITE TO MAKE WHATEVER MOVE IT WANTS (regardless of legality).  It's useful for debugging.
+The engine is barebones UCI complient which means it can use UCI GUIs.  I recommened downloading and using Arena, which can be found [here](http://www.playwitharena.de/).  All GUI instructions will be relative to that.
 
-Forgive the super hacky way I have of running the currently unfinished project.
+1. Get a copy of Arena (above).
+2. Pull this repo.
+3. Build an executable called `main` with:
+```shell
+cd engine/src
+make engine
+```
+4. Open Arena and select top menu bar options `Engines --> Install New Engine`.
+5. Select the `main` executable from inside the `engine/src` folder.
+6. Back to the top menu bar, navigate through `Engines --> Load Engine...` and select `Main`
+7. `File --> New Game` to start a new game against the engine.
+8.  On your first move (assuming human as white), Arena will start the engine.
 
-1. Pull repo.
-2. 
-    ```shell
-    cd src
-    make
-    ./main
-    ```
-
-    *Note* - makefile currently builds with debug flags.
-
-Note the input commands are not algebraic. They run in 5 character strings as shown.
-
-`(Piece char as displayed on board)(from row)(from column)(to row)(to column)`
-
-where the rows/columns are as depicted in the command line print out.
-
-Special move notation is as follows (remains 5 char string):
-
-Promotion - (U for white, u for black)(from column)(to column)P(piece to promote, not case sensitive, Q, B, N, R)
-En Passant - (E for white, e for black)(from column)(to column)EP
-Castling - (C for white, c for black)(king from row)(king from column)(king to row)(king from column)
-
-Examples of valid strings: P6050 U11PQ E23EP c0406 Q7351
-
-Will fiddle with the notation as UCI gets implmented (next on to do list).
+*Note*: There are still a few bugs in the engine.  You can view the debug window while playing with `Engines --> Log - Window` to see the Engine/UCI communication. Helpful to see if the executable has failed.  Note that sometimes if the engine gets hung up Arena will throw an error in this window detecting that the engine is already calculating which is disallowed.  If this happens, just close/open Arena again.  The engine should still be loaded.
