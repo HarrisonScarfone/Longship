@@ -99,6 +99,11 @@ namespace Search
         std::vector<std::string> possibleMoves = Moves::possibleMoves(bitboards, playingWhite);
         int val = INT32_MIN;
 
+        if (possibleMoves.size() == 0)
+        {
+            return val;    
+        }
+
         for (int i = 0; i < possibleMoves.size(); i++)
         {
             Gamestate::Bitboards variation = Moves::makeMove(bitboards, possibleMoves.at(i));

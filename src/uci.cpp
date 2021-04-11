@@ -158,26 +158,10 @@ std::string UCI::uciMoveToEngineMove(std::vector<std::string> possibleMoves, std
     std::string matcher = "";
     std::vector<std::string> converter;
 
-    // handle castling 
-    if (token.at(0) == 'c' && token.at(2) == 'c')
-    {
-        if (playingWhite == true)
-        {
-            matcher += "C747";
-        }
-        else
-        {
-            matcher += "c040";
-        }
-        matcher += uciNumToEngineNum(token.at(4));
-    }
-    else
-    {
-        matcher += uciNumToEngineNum(token.at(1));
-        matcher += letterToNum(token.at(0));
-        matcher += uciNumToEngineNum(token.at(3));
-        matcher += letterToNum(token.at(2));
-    }
+    matcher += uciNumToEngineNum(token.at(1));
+    matcher += letterToNum(token.at(0));
+    matcher += uciNumToEngineNum(token.at(3));
+    matcher += letterToNum(token.at(2));
 
     // find the engine move in possible moves
     for (int i = 0; i < possibleMoves.size(); i++)
@@ -188,7 +172,7 @@ std::string UCI::uciMoveToEngineMove(std::vector<std::string> possibleMoves, std
         }
     }
 
-    return " ";
+    throw std::invalid_argument("Couldn't translate from UCI to engine move");
 }
 
 std::string UCI::engineToUCIMove(std::string move)
