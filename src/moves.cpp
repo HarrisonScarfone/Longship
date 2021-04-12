@@ -561,7 +561,9 @@ void Moves::possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupi
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(60),
             .toBoard = Consts::intToUINT.at(62),
-            .type = '1'
+            .type = '1',
+            .piece = 'K',
+            .isWhite = *playingWhite
         };
 
         moves->push_back(thisMove);
@@ -572,7 +574,7 @@ void Moves::possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupi
             .fromBoard = Consts::intToUINT.at(60),
             .toBoard = Consts::intToUINT.at(58),
             .type = '2',
-            .piece = 'k',
+            .piece = 'K',
             .isWhite = *playingWhite,   
         };
 
@@ -589,7 +591,7 @@ void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupi
             .fromBoard = Consts::intToUINT.at(60),
             .toBoard = Consts::intToUINT.at(62),
             .type = '3',
-            .piece = 'k',
+            .piece = 'K',
             .isWhite = *playingWhite,  
         };
 
@@ -601,7 +603,7 @@ void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupi
             .fromBoard = Consts::intToUINT.at(60),
             .toBoard = Consts::intToUINT.at(62),
             .type = '4',
-            .piece = 'k',
+            .piece = 'K',
             .isWhite = *playingWhite, 
         };
 

@@ -17,7 +17,7 @@ class UCI
 
     public:
         Manager gm;
-    
+
         UCI();
 
         void uciGo();
@@ -29,16 +29,7 @@ class UCI
 
         State handlePositionToken(std::string token);
 
-        Move uciMoveToEngineMove();
-        std::string engineToUCIMove(std::string move);
-        
-        std::vector <std::string> vectorizeToken(std::string tokenString);
-        
-        std::string letterToNum(char letter);
-        std::string numToLetter(char letter);
-        std::string uciMoveToEngineMove(std::vector<std::string> possibleMoves, std::string token, bool playingWhite);
-        std::string uciNumToEngineNum(char num);
-        std::string engineNumToUCINum(char num);
+        std::vector<std::string> vectorizeToken(std::string tokenString);
 };
 
 #endif

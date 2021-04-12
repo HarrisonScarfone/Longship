@@ -106,16 +106,16 @@ Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *m
         switch(move->type)
         {
             case '1':
-                toBoard = Consts::uintToInt.at(61);
+                toBoard = Consts::intToUINT.at(61);
                 break;
             case '2':
-                toBoard = Consts::uintToInt.at(59);
+                toBoard = Consts::intToUINT.at(59);
                 break;
             case '3':
-                toBoard = Consts::uintToInt.at(13);
+                toBoard = Consts::intToUINT.at(13);
                 break;
             case '4':
-                toBoard = Consts::uintToInt.at(11);
+                toBoard = Consts::intToUINT.at(11);
                 break;
             default:
                 throw std::invalid_argument("Rook toboard placement error");

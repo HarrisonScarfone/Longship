@@ -10,12 +10,9 @@
 #include "uci.h"
 
 int main(){
+    // Game g = Game();
+    // g.playCLIGame();
 
-    Game g = Game();
-    g.playCLIGame();
-
-    // UCI g = UCI();
-    // g.uciGo();    
-
-
+    UCI g = UCI();
+    g.uciGo();    
 }
