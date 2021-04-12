@@ -10,131 +10,125 @@
 #include "manager.h"
 #include "gamestate.h"
 #include "utilities.h"
+#include "movemaker.h"
 
-std::vector <Move> Moves::possibleMoves(Gamestate::Bitboards &bitboards, bool playingWhite)
+std::vector <Move> Moves::possibleMoves(Gamestate::Bitboards *bitboards, bool *playingWhite)
 {
     uint64_t capturablePieces = 
-        (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q);
+        (bitboards->p | bitboards->n | bitboards->r | bitboards->b | bitboards->q);
     uint64_t pieces = 
-        (bitboards.p | bitboards.n | bitboards.r | bitboards.b | bitboards.q | bitboards.k);
+        (bitboards->p | bitboards->n | bitboards->r | bitboards->b | bitboards->q | bitboards->k);
     uint64_t occupied =
-        (bitboards.p | bitboards.r | bitboards.n | bitboards.b | bitboards.q | bitboards.k);
+        (bitboards->p | bitboards->r | bitboards->n | bitboards->b | bitboards->q | bitboards->k);
     uint64_t emptySpaces = ~occupied;
 
     uint64_t    myPieces, myPawns, myRook, myBishop, myQueen, myKnight, myKing,  
                 theirPieces, theirPawns, theirRook, theirBishop, theirQueen, theirKnight, theirKing,
                 notMyPieces, unsafe;
 
-    if (playingWhite == 1)
+    if (*playingWhite == 1)
     {
-        myPieces = bitboards.white;
-        theirPieces = bitboards.black;
+        myPieces = bitboards->white;
+        theirPieces = bitboards->black;
     }
     else
     {
-        myPieces = bitboards.black;
-        theirPieces = bitboards.white;
+        myPieces = bitboards->black;
+        theirPieces = bitboards->white;
     }
 
     capturablePieces = capturablePieces & theirPieces;
-    notMyPieces = ~((pieces & myPieces) | (theirPieces & bitboards.k));
-    myPawns = bitboards.p & myPieces;
-    myRook = bitboards.r & myPieces;
-    myBishop = bitboards.b & myPieces;
-    myKnight = bitboards.n & myPieces;
-    myQueen = bitboards.q & myPieces;
-    myKing = bitboards.k & myPieces;
-    theirPawns = bitboards.p & theirPieces;
-    theirRook = bitboards.r & theirPieces;
-    theirBishop = bitboards.b & theirPieces;
-    theirKnight = bitboards.n & theirPieces;
-    theirQueen = bitboards.q & theirPieces;
-    theirKing = bitboards.k & theirPieces;
+    notMyPieces = ~((pieces & myPieces) | (theirPieces & bitboards->k));
+    myPawns = bitboards->p & myPieces;
+    myRook = bitboards->r & myPieces;
+    myBishop = bitboards->b & myPieces;
+    myKnight = bitboards->n & myPieces;
+    myQueen = bitboards->q & myPieces;
+    myKing = bitboards->k & myPieces;
+    theirPawns = bitboards->p & theirPieces;
+    theirRook = bitboards->r & theirPieces;
+    theirBishop = bitboards->b & theirPieces;
+    theirKnight = bitboards->n & theirPieces;
+    theirQueen = bitboards->q & theirPieces;
+    theirKing = bitboards->k & theirPieces;
 
-    unsafe = unsafeSpaces(&occupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, &myKing, &playingWhite);
+    unsafe = unsafeSpaces(&occupied, theirPawns, theirRook, theirKnight, theirBishop, theirQueen, theirKing, &myKing, playingWhite);
 
     std::vector <Move> moves;
 
-    if (playingWhite == 1)
+    if (*playingWhite == 1)
     {
-        possibleWhitePawnMoves(&moves, &myPawns, &theirPawns, &capturablePieces, &emptySpaces, &bitboards.enpassant, &playingWhite);
-        possibleWhiteCastleMoves(&moves, &occupied, &unsafe, &myKing, &bitboards.wkc, &bitboards.wqc, &playingWhite);
+        possibleWhitePawnMoves(&moves, &myPawns, &theirPawns, &capturablePieces, &emptySpaces, &bitboards->enpassant, playingWhite);
+        possibleWhiteCastleMoves(&moves, &occupied, &unsafe, &myKing, &bitboards->wkc, &bitboards->wqc,playingWhite);
     }
     else
     {
-        possibleBlackPawnMoves(&moves, &myPawns, &theirPawns, &capturablePieces, &emptySpaces, &bitboards.enpassant, &playingWhite);
-        possibleBlackCastleMoves(&moves, &occupied, &unsafe, &myKing, &bitboards.bkc, &bitboards.bqc, &playingWhite);
+        possibleBlackPawnMoves(&moves, &myPawns, &theirPawns, &capturablePieces, &emptySpaces, &bitboards->enpassant, playingWhite);
+        possibleBlackCastleMoves(&moves, &occupied, &unsafe, &myKing, &bitboards->bkc, &bitboards->bqc, playingWhite);
     }
 
-        possibleRookMoves(&moves, &occupied, &notMyPieces, myRook, &playingWhite);
-        possibleBishopMoves(&moves, &occupied, &notMyPieces, myBishop, &playingWhite);
-        possibleQueenMoves(&moves, &occupied, &notMyPieces, myQueen, &playingWhite);
-        possibleKnightMoves(&moves, &notMyPieces, myKnight, &playingWhite);
-        possibleKingMoves(&moves, &notMyPieces, myKing, &unsafe, &playingWhite);   
+        possibleRookMoves(&moves, &occupied, &notMyPieces, myRook, playingWhite);
+        possibleBishopMoves(&moves, &occupied, &notMyPieces, myBishop, playingWhite);
+        possibleQueenMoves(&moves, &occupied, &notMyPieces, myQueen, playingWhite);
+        possibleKnightMoves(&moves, &notMyPieces, myKnight, playingWhite);
+        possibleKingMoves(&moves, &notMyPieces, myKing, &unsafe, playingWhite);   
 
-    /*
-    we need to be able to reduce our moveset if we are in check. note that the king already can't move into check.
-
-    we know what square the king is on and what squares are unsafe.  if the king is on an unsafe square, we can block 
-    any move that doesn't make that square unsafe by checking to see if the king is still unsafe after that move.
-
-    for now, we can pull moves from the movestring and check them after. i dont think your really losing much here
-    because you have to generate the move anyway and you have to generate the unsafe and check it at some point
-
-    the reduced movestring can also be used to determine the games ending
-    */        
-    return moves;    
+    return moveVectorValidator(bitboards, &moves, playingWhite);    
 }
 
-// void moveVectorValidator(std::vector <Move> *moves)
-// {
-//     int i = 0;
-//     while (moves.length() > i)
-//     {
-//         std::string currMove = moves.substr(i, 5);
-//         Gamestate::Bitboards potentialMoveBitboards = makeMove(bitboards, currMove);
+std::vector <Move> Moves::moveVectorValidator(Gamestate::Bitboards *bitboards, std::vector <Move> *moves, bool *playingWhite)
+{
+    uint64_t myKing, unsafe;
 
-//         uint64_t newOccupied = (potentialMoveBitboards.p | potentialMoveBitboards.r | potentialMoveBitboards.n | potentialMoveBitboards.b | potentialMoveBitboards.q | potentialMoveBitboards.k);
+    std::vector <Move> finalMoves;
 
-//         if (playingWhite == true)
-//         {
-//             myKing = potentialMoveBitboards.k & potentialMoveBitboards.white;
-//             unsafe = unsafeSpaces(
-//                 newOccupied, 
-//                 potentialMoveBitboards.p & potentialMoveBitboards.black, 
-//                 potentialMoveBitboards.r & potentialMoveBitboards.black, 
-//                 potentialMoveBitboards.n & potentialMoveBitboards.black, 
-//                 potentialMoveBitboards.b & potentialMoveBitboards.black, 
-//                 potentialMoveBitboards.q & potentialMoveBitboards.black, 
-//                 potentialMoveBitboards.k & potentialMoveBitboards.black, 
-//                 myKing, 
-//                 playingWhite
-//             );
-//         }
-//         else
-//         {
-//             myKing = potentialMoveBitboards.k & potentialMoveBitboards.black;
-//             unsafe = unsafeSpaces(
-//                 newOccupied, 
-//                 potentialMoveBitboards.p & potentialMoveBitboards.white, 
-//                 potentialMoveBitboards.r & potentialMoveBitboards.white, 
-//                 potentialMoveBitboards.n & potentialMoveBitboards.white, 
-//                 potentialMoveBitboards.b & potentialMoveBitboards.white, 
-//                 potentialMoveBitboards.q & potentialMoveBitboards.white, 
-//                 potentialMoveBitboards.k & potentialMoveBitboards.white, 
-//                 myKing, 
-//                 playingWhite
-//             );
+    for (int i=0; i < moves->size(); i++)
+    {
+        Move currMove = moves->at(i);
+        Gamestate::Bitboards potentialMoveBitboards = Movemaker::makeMove(*bitboards, &currMove);
 
-//         }
+        uint64_t newOccupied = (potentialMoveBitboards.p | potentialMoveBitboards.r | potentialMoveBitboards.n | potentialMoveBitboards.b | potentialMoveBitboards.q | potentialMoveBitboards.k);
+
+        if (*playingWhite == true)
+        {
+            myKing = potentialMoveBitboards.k & potentialMoveBitboards.white;
+            unsafe = unsafeSpaces(
+                &newOccupied, 
+                potentialMoveBitboards.p & potentialMoveBitboards.black, 
+                potentialMoveBitboards.r & potentialMoveBitboards.black, 
+                potentialMoveBitboards.n & potentialMoveBitboards.black, 
+                potentialMoveBitboards.b & potentialMoveBitboards.black, 
+                potentialMoveBitboards.q & potentialMoveBitboards.black, 
+                potentialMoveBitboards.k & potentialMoveBitboards.black, 
+                &myKing, 
+                playingWhite
+            );
+        }
+        else
+        {
+            myKing = potentialMoveBitboards.k & potentialMoveBitboards.black;
+            unsafe = unsafeSpaces(
+                &newOccupied, 
+                potentialMoveBitboards.p & potentialMoveBitboards.white, 
+                potentialMoveBitboards.r & potentialMoveBitboards.white, 
+                potentialMoveBitboards.n & potentialMoveBitboards.white, 
+                potentialMoveBitboards.b & potentialMoveBitboards.white, 
+                potentialMoveBitboards.q & potentialMoveBitboards.white, 
+                potentialMoveBitboards.k & potentialMoveBitboards.white, 
+                &myKing, 
+                playingWhite
+            );
+
+        }
         
-//         if ((myKing & unsafe) == 0)
-//         {
-//             finalMoves.push_back(currMove);
-//         }
-//         i += 5;
-//     }
-// }
+        if ((myKing & unsafe) == 0)
+        {
+            finalMoves.push_back(currMove);
+        }
+    }
+
+    return finalMoves;
+}
 
 void Moves::addPawnMovesToMoveVector(std::vector <Move> *moves, uint64_t *toBoard, char type, int offset, bool *playingWhite)
 {
@@ -234,8 +228,6 @@ uint64_t Moves::dAdMoves(int *index, uint64_t *fromBoard, uint64_t *occupied)
 
 void Moves::possibleWhitePawnMoves(std::vector <Move> *moves, uint64_t *myPawns, uint64_t *theirPawns, uint64_t *capturablePieces, uint64_t *emptySpaces, uint64_t *enpassant, bool *playingWhite)
 {
-    std::string moves = "";
-
     /*
     Pawn moves steps through each variant of pawn move and 
     builds a move string with all the available moves
@@ -287,7 +279,7 @@ void Moves::possibleBlackPawnMoves(std::vector <Move> *moves, uint64_t *myPawns,
     int index;
 
     temp = (*myPawns << 8) & *emptySpaces & ~Consts::RANK_1;;
-    addPawnMovesToMoveVector(moves, &temp, 's', 16, playingWhite);
+    addPawnMovesToMoveVector(moves, &temp, 's', 8, playingWhite);
 
     temp = (*myPawns << 16) & *emptySpaces & (*emptySpaces << 8) & Consts::RANK_5;
     addPawnMovesToMoveVector(moves, &temp, 's', 16, playingWhite);
@@ -321,7 +313,7 @@ void Moves::possibleRookMoves(std::vector <Move> *moves, uint64_t *occupied, uin
     {
         if (r & 1)
         {        
-            uint64_t fromBoard = Consts::uintToInt.at(location);        
+            uint64_t fromBoard = Consts::intToUINT.at(location);        
             uint64_t moveBitboard = hvMoves(&location, &fromBoard, occupied) & *notMyPieces;
             addMovesToMoveVector(moves, &moveBitboard, &fromBoard, 's', playingWhite, 'R');
         }
@@ -337,7 +329,7 @@ void Moves::possibleBishopMoves(std::vector <Move> *moves, uint64_t *occupied, u
     {
         if (b & 1)
         {
-            uint64_t fromBoard = Consts::uintToInt.at(location); 
+            uint64_t fromBoard = Consts::intToUINT.at(location); 
             uint64_t moveBitboard = dAdMoves(&location, &fromBoard, occupied) & *notMyPieces;
             addMovesToMoveVector(moves, &moveBitboard, &fromBoard, 's', playingWhite, 'B');
         }
@@ -353,7 +345,7 @@ void Moves::possibleQueenMoves(std::vector <Move> *moves, uint64_t *occupied, ui
     {
         if (q & 1)
         {
-            uint64_t fromBoard = Consts::uintToInt.at(location);
+            uint64_t fromBoard = Consts::intToUINT.at(location);
             uint64_t moveBitboard = (dAdMoves(&location, &fromBoard, occupied) | hvMoves(&location, &fromBoard, occupied)) & *notMyPieces;
             addMovesToMoveVector(moves, &moveBitboard, &fromBoard, 's', playingWhite, 'Q');
         }
@@ -569,7 +561,7 @@ void Moves::possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupi
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(60),
             .toBoard = Consts::intToUINT.at(62),
-            .type = 'c'
+            .type = '1'
         };
 
         moves->push_back(thisMove);
@@ -579,7 +571,7 @@ void Moves::possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupi
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(60),
             .toBoard = Consts::intToUINT.at(58),
-            .type = 'c',
+            .type = '2',
             .piece = 'k',
             .isWhite = *playingWhite,   
         };
@@ -596,7 +588,7 @@ void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupi
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(60),
             .toBoard = Consts::intToUINT.at(62),
-            .type = 'c',
+            .type = '3',
             .piece = 'k',
             .isWhite = *playingWhite,  
         };
@@ -608,7 +600,7 @@ void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupi
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(60),
             .toBoard = Consts::intToUINT.at(62),
-            .type = 'c',
+            .type = '4',
             .piece = 'k',
             .isWhite = *playingWhite, 
         };

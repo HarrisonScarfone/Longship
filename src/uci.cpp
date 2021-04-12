@@ -11,6 +11,7 @@
 #include "gamestate.h"
 #include "search.h"
 #include "utilities.h"
+#include "movemaker.h"
 
 UCI::UCI()
 {
@@ -27,51 +28,42 @@ void UCI::uciGo(){
 
     std::cout.setf(std::ios::unitbuf);
 
-    // try{
-        while (getline(std::cin, token))
+    while (getline(std::cin, token))
+    {
+        if (token == "uci")
         {
-            if (token == "uci")
-            {
-                initiate();
-            }
-            else if (token == "ucinewgame")
-            {
-                
-            }
-            else if (token == "setoption")
-            {
-                optionsHandler();
-            }
-            else if (token == "ucinewgame")
-            {
-                newGameHandler();
-            }
-            else if (token == "isready")
-            {
-                sendReady();
-            }
-            else if (token.substr(0, 8) == "position")
-            {
-                State state = handlePositionToken(token.substr(9));
-                bitboards = state.bitboards;
-                whiteToPlay = state.whiteToPlay;
-            }
+            initiate();
+        }
+        else if (token == "ucinewgame")
+        {
             
-            else if (token.substr(0, 2) == "go")
-            {
-                Search::SearchReturn sr = Search::getMove(bitboards, whiteToPlay);
-                std::string selection = sr.selectedMove;
-                std::cout << "bestmove " << engineToUCIMove(selection) << "\n";
-            }
-        }   
-    // }
-    // catch(...)
-    // {
-    //     std::cout << "Engine dumping crash information.\n";
-    //     gm.updateArrayFromBitboard(bitboards);
-    //     gm.arrayToBitboards();
-    //     Utilities::showAllBitboardsAsBoards(gm.getBitboards());
-    // }
+        }
+        else if (token == "setoption")
+        {
+            optionsHandler();
+        }
+        else if (token == "ucinewgame")
+        {
+            newGameHandler();
+        }
+        else if (token == "isready")
+        {
+            sendReady();
+        }
+        else if (token.substr(0, 8) == "position")
+        {
+            State state = handlePositionToken(token.substr(9));
+            bitboards = state.bitboards;
+            whiteToPlay = state.whiteToPlay;
+        }
+        
+        else if (token.substr(0, 2) == "go")
+        {
+            Search::SearchReturn sr = Search::getMove(bitboards, whiteToPlay);
+            std::string selection = sr.selectedMove;
+            std::cout << "bestmove " << engineToUCIMove(selection) << "\n";
+        }
+    }   
 }
 
 void UCI::initiate()
@@ -128,10 +120,10 @@ UCI::State UCI::handlePositionToken(std::string token)
         }
         else
         {            
-            std::vector<std::string> possibleMoves = Moves::possibleMoves(bitboards, whiteToPlay);
+            std::vector <Move> possibleMoves = Moves::possibleMoves(&bitboards, &whiteToPlay);
 
-            std::string move = uciMoveToEngineMove(possibleMoves, tokens.at(i), whiteToPlay);
-            bitboards = Moves::makeMove(bitboards, move);
+            Move move = uciMoveToEngineMove(possibleMoves, tokens.at(i), whiteToPlay);
+            bitboards = Movemaker::makeMove(bitboards, &move);
             whiteToPlay = !whiteToPlay;
         }
     }
@@ -143,7 +135,7 @@ UCI::State UCI::handlePositionToken(std::string token)
     return state;
 }
 
-std::vector<std::string> UCI::vectorizeToken(std::string tokenString)
+std::vector <std::string> UCI::vectorizeToken(std::string tokenString)
 {
     std::istringstream iss(tokenString);
     std::vector<std::string> tokens;
@@ -153,7 +145,7 @@ std::vector<std::string> UCI::vectorizeToken(std::string tokenString)
     return tokens;
 }
 
-std::string UCI::uciMoveToEngineMove(std::vector<std::string> possibleMoves, std::string token, bool playingWhite)
+Move UCI::uciMoveToEngineMove(std::vector <Move> possibleMoves, std::string token, bool playingWhite)
 {
     std::string matcher = "";
     std::vector<std::string> converter;

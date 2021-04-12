@@ -11,6 +11,7 @@
 #include "evaluate.h"
 #include "moves.h"
 #include "utilities.h"
+#include "movemaker.h"
 
 namespace Search
 {
@@ -20,8 +21,8 @@ namespace Search
 
         int depth = 4;
 
-        std::string selectedMove;
-        std::vector<std::string> bestMoves;
+        Move selectedMove;
+        std::vector <Move> bestMoves;
         SearchReturn searchReturn;
 
         bestMoves = negaMaxHandler(bitboards, INT32_MIN, INT32_MAX, depth, playingWhite);
@@ -46,18 +47,18 @@ namespace Search
 
     }
 
-    std::vector<std::string> negaMaxHandler(Gamestate::Bitboards bitboards, int alpha, int beta, int depth, bool playingWhite)
+    std::vector <Move> negaMaxHandler(Gamestate::Bitboards bitboards, int alpha, int beta, int depth, bool playingWhite)
     {
-        std::vector<std::string> possibleMoves = Moves::possibleMoves(bitboards, playingWhite);
+        std::vector <Move> possibleMoves = Moves::possibleMoves(&bitboards, &playingWhite);
 
         int bestMoveVal = INT32_MIN;
 
         // we can have more than one move that evaluates to a "best value" so store them in a vector
-        std::vector<std::string> bestMoves;
+        std::vector <Move> bestMoves;
 
         for (int i = 0; i < possibleMoves.size(); i++)
         {
-            Gamestate::Bitboards variation = Moves::makeMove(bitboards, possibleMoves.at(i));
+            Gamestate::Bitboards variation = Movemaker::makeMove(bitboards, &possibleMoves.at(i));
 
             int variationScore = -1 * negaMaxAB(variation, depth - 1, -beta, -alpha, !playingWhite);
 
@@ -96,7 +97,7 @@ namespace Search
             return Evaluate::positionScore(bitboards, playingWhite);
         }
 
-        std::vector<std::string> possibleMoves = Moves::possibleMoves(bitboards, playingWhite);
+        std::vector <Move> possibleMoves = Moves::possibleMoves(&bitboards, &playingWhite);
         int val = INT32_MIN;
 
         if (possibleMoves.size() == 0)
@@ -106,7 +107,7 @@ namespace Search
 
         for (int i = 0; i < possibleMoves.size(); i++)
         {
-            Gamestate::Bitboards variation = Moves::makeMove(bitboards, possibleMoves.at(i));
+            Gamestate::Bitboards variation = Movemaker::makeMove(bitboards, &possibleMoves.at(i));
 
             moveScore = -1 * negaMaxAB(variation, depth - 1, -1 * beta, -1 * alpha, !playingWhite);
 

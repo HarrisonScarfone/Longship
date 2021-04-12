@@ -6,44 +6,44 @@
 #include "consts.h"
 #include "moves.h"
 
-void addPiece(Gamestate::Bitboards *bitboards, Move *move)
+void Movemaker::addPiece(Gamestate::Bitboards *bitboards, uint64_t *toBoard, char *piece, bool *isWhite)
 {
-    switch (move->piece)
+    switch (*piece)
     {
     case 'P':
-        bitboards->p = bitboards->p | move->toBoard;
+        bitboards->p = bitboards->p | *toBoard;
         break;
     case 'K':
-        bitboards->k = bitboards->k | move->toBoard;
+        bitboards->k = bitboards->k | *toBoard;
         break;
     case 'Q':
-        bitboards->q = bitboards->q | move->toBoard;
+        bitboards->q = bitboards->q | *toBoard;
         break;
     case 'R':
-        bitboards->r = bitboards->r | move->toBoard;
+        bitboards->r = bitboards->r | *toBoard;
         break;
     case 'B':
-        bitboards->b = bitboards->b | move->toBoard;
+        bitboards->b = bitboards->b | *toBoard;
         break;
     case 'N':
-        bitboards->n = bitboards->n | move->toBoard;
+        bitboards->n = bitboards->n | *toBoard;
         break;    
     default:
         throw std::invalid_argument("Invalid piece to add");
         break;
     }
 
-    if (move->isWhite == 1)
+    if (*isWhite == 1)
     {
-        bitboards->white = bitboards->white | move->toBoard;
+        bitboards->white = bitboards->white | *toBoard;
     }
     else
     {
-        bitboards->black = bitboards->black | move->toBoard;
+        bitboards->black = bitboards->black | *toBoard;
     }
 }
 
-void removePiece(Gamestate::Bitboards *bitboards, uint64_t *removeBoard, bool *isWhite)
+void Movemaker::removePiece(Gamestate::Bitboards *bitboards, uint64_t *removeBoard, bool *isWhite)
 {
     if ((bitboards->p & *removeBoard) > 0)
     {
@@ -76,7 +76,51 @@ void removePiece(Gamestate::Bitboards *bitboards, uint64_t *removeBoard, bool *i
     }
 }
 
-Gamestate::Bitboards makeMove(Gamestate::Bitboards bitboards, Move move)
+Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *move)
 {
+    Gamestate::Bitboards newBitboards = bitboards;
 
+    removePiece(&newBitboards, &move->fromBoard, &move->isWhite);
+    removePiece(&newBitboards, &move->toBoard, &move->isWhite);
+    addPiece(&newBitboards, &move->toBoard, &move->piece, &move->isWhite);
+
+    if (move->type == 'e')
+    {
+        uint64_t removeBoard;
+        if (move->isWhite == 1)
+        {
+            removeBoard = move->toBoard << 8;
+        }
+        else
+        {
+            removeBoard = move->toBoard >> 8;
+        }
+        removePiece(&newBitboards, &removeBoard, &move->isWhite);
+    }
+
+    uint64_t toBoard;
+    char piece = 'R';
+    // wkc = 1, wqc = 2, bkc = 3, bqc = 4
+    if (isdigit(move->type))
+    {
+        switch(move->type)
+        {
+            case '1':
+                toBoard = Consts::uintToInt.at(61);
+                break;
+            case '2':
+                toBoard = Consts::uintToInt.at(59);
+                break;
+            case '3':
+                toBoard = Consts::uintToInt.at(13);
+                break;
+            case '4':
+                toBoard = Consts::uintToInt.at(11);
+                break;
+            default:
+                throw std::invalid_argument("Rook toboard placement error");
+        }
+        addPiece(&newBitboards, &toBoard, &piece, &move->isWhite);
+    }
+    return newBitboards;
 }

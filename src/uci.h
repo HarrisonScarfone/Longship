@@ -19,16 +19,21 @@ class UCI
         Manager gm;
     
         UCI();
+
         void uciGo();
         void initiate();
         void sendReady();
         void optionsHandler();
         void newGameHandler();
         void inputPosition();
-        std::string uciMoveToEngineString();
+
         State handlePositionToken(std::string token);
-        std::vector<std::string> vectorizeToken(std::string tokenString);
+
+        Move uciMoveToEngineMove();
         std::string engineToUCIMove(std::string move);
+        
+        std::vector <std::string> vectorizeToken(std::string tokenString);
+        
         std::string letterToNum(char letter);
         std::string numToLetter(char letter);
         std::string uciMoveToEngineMove(std::vector<std::string> possibleMoves, std::string token, bool playingWhite);

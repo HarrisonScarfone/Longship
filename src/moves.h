@@ -19,8 +19,8 @@ struct Move
 
 namespace Moves
 {
-
-    std::vector <Move> possibleMoves(Gamestate::Bitboards &bitboards, bool playingWhite);
+    std::vector <Move> possibleMoves(Gamestate::Bitboards *bitboards, bool *playingWhite);
+    std::vector <Move> moveVectorValidator(Gamestate::Bitboards *bitboards, std::vector <Move> *moves, bool *playingWhite);
 
     void addPawnMovesToMoveVector(std::vector <Move> *moves, uint64_t *toBoard, char type, int offset, bool *playingWhite);
     void addMovesToMoveVector(std::vector <Move> *moves, uint64_t *toBoard, uint64_t *fromBoard, char type, bool *playingWhite, char piece);
@@ -40,8 +40,6 @@ namespace Moves
     uint64_t dAdMoves(int *index, uint64_t *fromBoard, uint64_t *occupied);
     uint64_t unsafeFromPawns(uint64_t *theirPawns, bool *playingWhite);
     uint64_t unsafeSpaces(uint64_t *startingOccupied, uint64_t theirPawns, uint64_t theirRook, uint64_t theirKnight, uint64_t theirBishop, uint64_t theirQueen, uint64_t theirKing, uint64_t *myKing, bool *playingWhite);
-    
-
 };
 
 
