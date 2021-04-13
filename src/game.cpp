@@ -10,6 +10,7 @@
 #include "utilities.h"
 #include "evaluate.h"
 #include "search.h"
+#include "movemaker.h"
 
 Game::Game(){
     gm = Manager();
@@ -39,9 +40,7 @@ void Game::playCLIGame()
     int positionScore = 0;
     int moveIndex = -1;
 
-    std::string move;
-    std::vector<std::string> possibleMoves;
-    std::vector<std::string> moveVector;
+    std::vector <Move> possibleMoves;
 
     Gamestate::Bitboards currBitboards;
     Gamestate::Bitboards newBitboards;
@@ -54,55 +53,17 @@ void Game::playCLIGame()
         gm.updateArrayFromBitboard(currBitboards);
         gm.printArrayBoard();
 
-        possibleMoves = Moves::possibleMoves(gameHistory.at(turnCount), whiteToPlay);
-        // Utilities::showSplitMovestring(possibleMoves);
+        possibleMoves = Moves::possibleMoves(&gameHistory.at(turnCount), &whiteToPlay);
 
-        if (possibleMoves.size() == 0)
-        {
-            if (whiteToPlay == true)
-            {
-                std::cout << "Black wins by checkmate.";
-            }
-            else
-            {
-                std::cout << "White wins by checkmate.";
-            }
-            break;
-        }
+        int index;
+        std::cout << "Enter move index: ";
+        std::cin >> index;
+        std::cout << "\n";
 
-        positionScore = Evaluate::positionScore(currBitboards, whiteToPlay);
-
-        std::cout << getTurnColorString(whiteToPlay) << "'s turn. \n";
-        std::cout << "Current position evaluated at: " << positionScore << "\n";
-
-        if (!whiteToPlay)
-        {
-            Search::SearchReturn searchReturn = Search::getMove(currBitboards, whiteToPlay);
-            newBitboards = Moves::makeMove(currBitboards, searchReturn.selectedMove);
-        }
-
-        else
-        {
-            // std::cout << "Best move vector size is " << searchReturn.allBestMoves.size() << "\n";
-            // // Utilities::showMoveVector(searchReturn.allBestMoves);
-            // std::cout << "We recommend " << searchReturn.selectedMove << "\n";
-            std::cout << "Enter a move: ";
-            std::cin >> move;
-            std::cout << "\n";
-
-            newBitboards = Moves::makeMove(currBitboards, move);
-            // Utilities::showAllBitboardsAsBoards(newBitboards);
-        }
-        
-
-
-
+        newBitboards = Movemaker::makeMove(currBitboards, &possibleMoves.at(index));
         gameHistory.push_back(newBitboards);
-        currBitboards = newBitboards;
-        // Utilities::showAllBitboardsAsBoards(currBitboards);
 
         whiteToPlay = !whiteToPlay;
         turnCount++;
     }
-
 }

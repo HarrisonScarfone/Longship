@@ -3,6 +3,7 @@
 
 #include "gamestate.h"
 #include "utilities.h"
+#include "moves.h"
 
 namespace Utilities
 {

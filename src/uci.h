@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "manager.h"
+#include "game.h"
 
 class UCI
 {
@@ -17,23 +18,19 @@ class UCI
 
     public:
         Manager gm;
-    
+
         UCI();
+
         void uciGo();
         void initiate();
         void sendReady();
         void optionsHandler();
         void newGameHandler();
         void inputPosition();
-        std::string uciMoveToEngineString();
+
         State handlePositionToken(std::string token);
+
         std::vector<std::string> vectorizeToken(std::string tokenString);
-        std::string engineToUCIMove(std::string move);
-        std::string letterToNum(char letter);
-        std::string numToLetter(char letter);
-        std::string uciMoveToEngineMove(std::vector<std::string> possibleMoves, std::string token, bool playingWhite);
-        std::string uciNumToEngineNum(char num);
-        std::string engineNumToUCINum(char num);
 };
 
 #endif
