@@ -19,7 +19,7 @@ namespace Search
     SearchReturn getMove(Gamestate::Bitboards bitboards, bool playingWhite)
     {
 
-        int depth = 3;
+        int depth = 5;
 
         Move selectedMove;
         std::vector <Move> bestMoves;
@@ -99,6 +99,13 @@ namespace Search
 
         std::vector <Move> possibleMoves = Moves::possibleMoves(&bitboards, &playingWhite);
         int val = INT32_MIN;
+
+        // if we find a 0 size possibleMoves vector return it immediately because its found a mate
+        if (possibleMoves.size() == 0)
+        {
+            return INT32_MIN;
+        }
+
 
         for (int i = 0; i < possibleMoves.size(); i++)
         {

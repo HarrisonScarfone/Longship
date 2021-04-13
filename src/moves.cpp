@@ -155,10 +155,12 @@ void Moves::addPawnMovesToMoveVector(std::vector <Move> *moves, uint64_t *toBoar
                 moves->push_back(thisMove);
                 thisMove.piece = 'N';
                 moves->push_back(thisMove);
-                continue;
             }
-            thisMove.piece = 'P';
-            moves->push_back(thisMove);
+            else
+            {
+                thisMove.piece = 'P';
+                moves->push_back(thisMove);
+            }
         }
         *toBoard = *toBoard >> 1;
         index++;
@@ -242,7 +244,7 @@ void Moves::possibleWhitePawnMoves(std::vector <Move> *moves, uint64_t *myPawns,
 
     // two squares forward
     temp = (*myPawns >> 16) & *emptySpaces & (*emptySpaces >> 8) & Consts::RANK_4;
-    addPawnMovesToMoveVector(moves, &temp, 's', -16, playingWhite);
+    addPawnMovesToMoveVector(moves, &temp, 'd', -16, playingWhite);
 
     // capture right
     temp = (*myPawns >> 7) & *capturablePieces & ~Consts::RANK_8 & ~Consts::FILE_A;
@@ -282,7 +284,7 @@ void Moves::possibleBlackPawnMoves(std::vector <Move> *moves, uint64_t *myPawns,
     addPawnMovesToMoveVector(moves, &temp, 's', 8, playingWhite);
 
     temp = (*myPawns << 16) & *emptySpaces & (*emptySpaces << 8) & Consts::RANK_5;
-    addPawnMovesToMoveVector(moves, &temp, 's', 16, playingWhite);
+    addPawnMovesToMoveVector(moves, &temp, 'd', 16, playingWhite);
 
     temp = (*myPawns << 7) & *capturablePeices & ~Consts::RANK_1 & ~Consts::FILE_H;
     addPawnMovesToMoveVector(moves, &temp, 's', 7, playingWhite);
@@ -556,7 +558,7 @@ uint64_t Moves::unsafeSpaces(uint64_t *startingOccupied, uint64_t theirPawns, ui
 void Moves::possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *unsafe, uint64_t *myKing, bool *wkc, bool *wqc, bool *playingWhite)
 {
     std::string temp = "";
-    if (*wkc == 1 && ((*occupied & Consts::WKC_INBETWEEN) == 0) && ((*unsafe & Consts::WKC_INBETWEEN) == 0) && ((*myKing & Consts::WHITE_KING_START) > 0))
+    if (*wkc == 1 && ((*occupied & Consts::WKC_INBETWEEN) == 0) && ((*unsafe & Consts::WKC_INBETWEEN & Consts::WHITE_KING_START) == 0) && ((*myKing & Consts::WHITE_KING_START) > 0))
     {
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(60),
@@ -568,7 +570,7 @@ void Moves::possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupi
 
         moves->push_back(thisMove);
     }
-    if (*wqc == 1 && ((*occupied & Consts::WQC_INBETWEEN) == 0) && ((*unsafe & Consts::WQC_INBETWEEN) == 0) && ((*myKing & Consts::WHITE_KING_START) > 0))
+    if (*wqc == 1 && ((*occupied & Consts::WQC_INBETWEEN) == 0) && ((*unsafe & Consts::WQC_INBETWEEN & Consts::WHITE_KING_START) == 0) && ((*myKing & Consts::WHITE_KING_START) > 0))
     {
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(60),
@@ -585,7 +587,7 @@ void Moves::possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupi
 void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *unsafe, uint64_t *myKing, bool *bkc, bool *bqc, bool *playingWhite)
 {
     std::string temp = "";
-    if (*bkc == 1 && ((*occupied & Consts::BKC_INBETWEEN) == 0) && ((*unsafe & Consts::BKC_INBETWEEN) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
+    if (*bkc == 1 && ((*occupied & Consts::BKC_INBETWEEN) == 0) && ((*unsafe & Consts::BKC_INBETWEEN & Consts::BLACK_KING_START) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
     {
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(4),
@@ -597,7 +599,7 @@ void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupi
 
         moves->push_back(thisMove);
     }
-    if (*bqc == 1 && ((*occupied & Consts::BQC_INBETWEEN) == 0) && ((*unsafe & Consts::BQC_INBETWEEN) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
+    if (*bqc == 1 && ((*occupied & Consts::BQC_INBETWEEN) == 0) && ((*unsafe & Consts::BQC_INBETWEEN & Consts::BLACK_KING_START) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
     {
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(4),

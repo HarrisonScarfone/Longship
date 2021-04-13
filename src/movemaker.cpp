@@ -82,6 +82,11 @@ Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *m
     removePiece(&newBitboards, &move->toBoard);
     addPiece(&newBitboards, &move->toBoard, &move->piece, &move->isWhite);
 
+    // since an en passant move in invalidated on the next turn zero the enpassant board
+    // before we start.  it gets set back if its needed for the next move gen
+    newBitboards.enpassant = 0;
+
+    // check for extra removal due to en passant
     if (move->type == 'e')
     {
         uint64_t removeBoard;
@@ -96,12 +101,55 @@ Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *m
         removePiece(&newBitboards, &removeBoard);
     }
 
-    uint64_t toBoard;
-    uint64_t fromBoard;
-    char piece = 'R';
+    if (move->type == 'd')
+    {
+        int enpassantSquare = Consts::uintToInt.at(move->fromBoard);
+        newBitboards.enpassant = Consts::FileMasks8[enpassantSquare % 8];
+    }
+    
+    // need to remove castling rights if a rook or king moves
+    if (move->piece == 'K')
+    {
+        if (move->isWhite == 1)
+        {
+            newBitboards.wkc = false;
+            newBitboards.wqc = false;
+        }
+        else
+        {
+            newBitboards.bkc = false;
+            newBitboards.wqc = false;
+        }
+    }
+
+    // remove castle rights if rook moves from a square
+    if (move->piece == 'R')
+    {
+        switch (move->fromBoard)
+        {
+        case Consts::BKC:
+            newBitboards.bkc = false;
+            break;
+        case Consts::BQC:
+            newBitboards.bqc = false;
+            break;
+        case Consts::WKC:
+            newBitboards.wkc = false;
+            break;
+        case Consts::WQC:
+            newBitboards.wqc = false;
+            break;
+        }
+    }
+
+    // handle a castiling move. remove and replace the rook
     // wkc = 1, wqc = 2, bkc = 3, bqc = 4
     if (isdigit(move->type))
     {
+        uint64_t toBoard;
+        uint64_t fromBoard;
+        char piece = 'R';
+
         switch(move->type)
         {
             case '1':
@@ -126,5 +174,7 @@ Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *m
         removePiece(&newBitboards, &fromBoard);
         addPiece(&newBitboards, &toBoard, &piece, &move->isWhite);
     }
+
+    // set enpassant to 0 since if we dont make that move it dissapears
     return newBitboards;
 }
