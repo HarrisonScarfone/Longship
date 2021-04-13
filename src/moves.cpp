@@ -588,8 +588,8 @@ void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupi
     if (*bkc == 1 && ((*occupied & Consts::BKC_INBETWEEN) == 0) && ((*unsafe & Consts::BKC_INBETWEEN) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
     {
         Move thisMove = {
-            .fromBoard = Consts::intToUINT.at(60),
-            .toBoard = Consts::intToUINT.at(62),
+            .fromBoard = Consts::intToUINT.at(4),
+            .toBoard = Consts::intToUINT.at(6),
             .type = '3',
             .piece = 'K',
             .isWhite = *playingWhite,  
@@ -600,8 +600,8 @@ void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupi
     if (*bqc == 1 && ((*occupied & Consts::BQC_INBETWEEN) == 0) && ((*unsafe & Consts::BQC_INBETWEEN) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
     {
         Move thisMove = {
-            .fromBoard = Consts::intToUINT.at(60),
-            .toBoard = Consts::intToUINT.at(62),
+            .fromBoard = Consts::intToUINT.at(4),
+            .toBoard = Consts::intToUINT.at(2),
             .type = '4',
             .piece = 'K',
             .isWhite = *playingWhite, 

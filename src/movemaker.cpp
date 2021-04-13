@@ -97,6 +97,7 @@ Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *m
     }
 
     uint64_t toBoard;
+    uint64_t fromBoard;
     char piece = 'R';
     // wkc = 1, wqc = 2, bkc = 3, bqc = 4
     if (isdigit(move->type))
@@ -105,19 +106,24 @@ Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *m
         {
             case '1':
                 toBoard = Consts::intToUINT.at(61);
+                fromBoard = Consts::WKC;
                 break;
             case '2':
                 toBoard = Consts::intToUINT.at(59);
+                fromBoard = Consts::WQC;
                 break;
             case '3':
-                toBoard = Consts::intToUINT.at(13);
+                toBoard = Consts::intToUINT.at(5);
+                fromBoard = Consts::BKC;
                 break;
             case '4':
-                toBoard = Consts::intToUINT.at(11);
+                toBoard = Consts::intToUINT.at(3);
+                fromBoard = Consts::BQC;
                 break;
             default:
                 throw std::invalid_argument("Rook toboard placement error");
         }
+        removePiece(&newBitboards, &fromBoard);
         addPiece(&newBitboards, &toBoard, &piece, &move->isWhite);
     }
     return newBitboards;
