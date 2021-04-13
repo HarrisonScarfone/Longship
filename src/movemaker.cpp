@@ -43,7 +43,7 @@ void Movemaker::addPiece(Gamestate::Bitboards *bitboards, uint64_t *toBoard, cha
     }
 }
 
-void Movemaker::removePiece(Gamestate::Bitboards *bitboards, uint64_t *removeBoard, bool *isWhite)
+void Movemaker::removePiece(Gamestate::Bitboards *bitboards, uint64_t *removeBoard)
 {
     if ((bitboards->p & *removeBoard) > 0)
     {
@@ -65,23 +65,21 @@ void Movemaker::removePiece(Gamestate::Bitboards *bitboards, uint64_t *removeBoa
     {
         bitboards->r = bitboards->r & ~*removeBoard;
     }
+    else if ((bitboards->k & *removeBoard) > 0)
+    {
+        bitboards->k = bitboards->k & ~*removeBoard;
+    }
 
-    if (*isWhite == 1)
-    {
-        bitboards->white = bitboards->white | *removeBoard;
-    }
-    else
-    {
-        bitboards->black = bitboards->black | *removeBoard;
-    }
+    bitboards->white = bitboards->white & ~*removeBoard;
+    bitboards->black = bitboards->black & ~*removeBoard;
 }
 
 Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *move)
 {
     Gamestate::Bitboards newBitboards = bitboards;
 
-    removePiece(&newBitboards, &move->fromBoard, &move->isWhite);
-    removePiece(&newBitboards, &move->toBoard, &move->isWhite);
+    removePiece(&newBitboards, &move->fromBoard);
+    removePiece(&newBitboards, &move->toBoard);
     addPiece(&newBitboards, &move->toBoard, &move->piece, &move->isWhite);
 
     if (move->type == 'e')
@@ -95,7 +93,7 @@ Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *m
         {
             removeBoard = move->toBoard >> 8;
         }
-        removePiece(&newBitboards, &removeBoard, &move->isWhite);
+        removePiece(&newBitboards, &removeBoard);
     }
 
     uint64_t toBoard;

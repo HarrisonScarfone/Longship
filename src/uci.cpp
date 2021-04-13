@@ -13,14 +13,17 @@
 #include "utilities.h"
 #include "movemaker.h"
 #include "translator.h"
+#include "gamerecorder.h"
 
 UCI::UCI()
 {
-    uciGo();
+    Manager gm = Manager();
 }
 
 void UCI::uciGo(){
     
+    GameRecorder gr = GameRecorder();
+
     std::string move;
     std::string token;
     Gamestate::Bitboards bitboards;
@@ -60,8 +63,12 @@ void UCI::uciGo(){
         
         else if (token.substr(0, 2) == "go")
         {
+            gr.writeTurnStart();
+            gr.writeBitboards(&bitboards);
             Search::SearchReturn sr = Search::getMove(bitboards, whiteToPlay);
+            gr.writeMove(&sr.selectedMove);
             std::cout << "bestmove " << Translator::engineToUCIMove(&sr.selectedMove) << "\n";
+            gr.writeTurnEnd();
         }
     }   
 }
@@ -71,7 +78,7 @@ void UCI::initiate()
     std::cout << "id name testengine\n";
     std::cout << "id author Harrison Scarfone\n";
 
-    Manager gm = Manager();
+
     gm.arrayToBitboards();
 
     std::vector<Gamestate::Bitboards> gameHistory;

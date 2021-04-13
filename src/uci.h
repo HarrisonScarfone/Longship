@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "manager.h"
+#include "game.h"
 
 class UCI
 {

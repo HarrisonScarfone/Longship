@@ -7,7 +7,7 @@
 namespace Movemaker
 {
     void addPiece(Gamestate::Bitboards *bitboards, uint64_t *toBoard, char *piece, bool *isWhite);
-    void removePiece(Gamestate::Bitboards *bitboards, uint64_t *removeBoard, bool *isWhite);
+    void removePiece(Gamestate::Bitboards *bitboards, uint64_t *removeBoard);
     Gamestate::Bitboards makeMove(Gamestate::Bitboards bitboards, Move *move);
 }
 

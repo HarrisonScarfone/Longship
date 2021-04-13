@@ -39,7 +39,7 @@ std::string Translator::engineToUCIMove(Move *move)
     int t2 = toBoardAsInt % 8;
 
     int f1 = fromBoardAsInt / 8;
-    int f2 = toBoardAsInt % 8;
+    int f2 = fromBoardAsInt % 8;
 
     std::string engineMove = numToLetter(f2) + engineNumToUCINum(f1) + numToLetter(t2) + engineNumToUCINum(t1);
 
