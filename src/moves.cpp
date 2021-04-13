@@ -587,7 +587,7 @@ void Moves::possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupi
 void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *unsafe, uint64_t *myKing, bool *bkc, bool *bqc, bool *playingWhite)
 {
     std::string temp = "";
-    if (*bkc == 1 && ((*occupied & Consts::BKC_INBETWEEN) == 0) && ((*unsafe & Consts::BKC_INBETWEEN & Consts::BLACK_KING_START) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
+    if (*bkc == 1 && ((*occupied & Consts::BKC_INBETWEEN) == 0) && ((*unsafe & (Consts::BKC_INBETWEEN | Consts::BLACK_KING_START)) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
     {
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(4),
@@ -599,7 +599,7 @@ void Moves::possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupi
 
         moves->push_back(thisMove);
     }
-    if (*bqc == 1 && ((*occupied & Consts::BQC_INBETWEEN) == 0) && ((*unsafe & Consts::BQC_INBETWEEN & Consts::BLACK_KING_START) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
+    if (*bqc == 1 && ((*occupied & Consts::BQC_INBETWEEN) == 0) && ((*unsafe & (Consts::BQC_INBETWEEN | Consts::BLACK_KING_START)) == 0) && ((*myKing & Consts::BLACK_KING_START) > 0))
     {
         Move thisMove = {
             .fromBoard = Consts::intToUINT.at(4),
