@@ -103,7 +103,7 @@ Gamestate::Bitboards Movemaker::makeMove(Gamestate::Bitboards bitboards, Move *m
 
     if (move->type == 'd')
     {
-        int enpassantSquare = Consts::uintToInt.at(move->fromBoard);
+        int enpassantSquare = Consts::uintToInt.at(move->toBoard);
         newBitboards.enpassant = Consts::FileMasks8[enpassantSquare % 8];
     }
     

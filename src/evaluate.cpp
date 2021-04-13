@@ -9,16 +9,19 @@ int Evaluate::positionScore(Gamestate::Bitboards bitboards, bool playingWhite)
 {
     uint64_t myPieces = 0;
     uint64_t theirPieces = 0;
+    uint64_t myPawns = 0;
 
     if (playingWhite == true)
     {
         myPieces = bitboards.white;
         theirPieces = bitboards.black;
+        myPawns = bitboards.p * bitboards.white;
     }
     else
     {
         myPieces = bitboards.black;
         theirPieces = bitboards.white;
+        myPawns = bitboards.p & bitboards.black;
     }
 
     uint64_t control = myControl(bitboards, playingWhite);
@@ -26,7 +29,8 @@ int Evaluate::positionScore(Gamestate::Bitboards bitboards, bool playingWhite)
     int totalScore = 
         evaluateMaterial(bitboards, myPieces) - evaluateMaterial(bitboards, theirPieces) + 
         evaluateBoardControl(control) + 
-        evaluateCenterControl(control);
+        evaluateCenterControl(control) + 
+        evaluatePawns(myPawns);
 
     return totalScore;
 }
@@ -72,10 +76,42 @@ uint64_t Evaluate::myControl(Gamestate::Bitboards bitboards, bool playingWhite)
     return myControl;
 }
 
+int Evaluate::evaluatePawns(uint64_t myPawns)
+{
+    int runningScore = 0;
+
+    int centerPawnScore = 4;
+    int extendedCenterPawnScore = 2;
+    
+    // going to try and encourage it to grab space
+    uint64_t centerPawns = myPawns & Consts::CENTRE;
+    uint64_t extendedCenterPawns = myPawns & Consts::CENTRE;
+
+    while (centerPawns > 0)
+    {
+        if (centerPawns & 1)
+        {
+            runningScore += centerPawnScore;
+        }
+        centerPawns = centerPawns >> 1;
+    }
+
+    while (extendedCenterPawns > 0)
+    {
+        if (extendedCenterPawns & 1)
+        {
+            runningScore += centerPawnScore;
+        }
+        extendedCenterPawns = extendedCenterPawns >> 1;
+    }
+
+    return runningScore;
+}
+
 int Evaluate::evaluateBoardControl(uint64_t myControl)
 {
     int runningScore = 0;
-    int squareControlValue = 3;
+    int squareControlValue = 2;
 
     while (myControl > 0)
     {
@@ -95,8 +131,8 @@ int Evaluate::evaluateCenterControl(uint64_t myControl)
     uint64_t extendedCenterControl = myControl & Consts::EXTENDED_CENTRE;
 
     int runningScore = 0;
-    int centerValue = 11;
-    int extendedCenterValue = 7;
+    int centerValue = 2;
+    int extendedCenterValue = 1;
 
     while (centerControl > 0)
     {

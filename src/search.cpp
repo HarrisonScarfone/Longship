@@ -19,7 +19,7 @@ namespace Search
     SearchReturn getMove(Gamestate::Bitboards bitboards, bool playingWhite)
     {
 
-        int depth = 4;
+        int depth = 3;
 
         Move selectedMove;
         std::vector <Move> bestMoves;
