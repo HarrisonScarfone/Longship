@@ -1,82 +1,108 @@
 #include <cstdint>
+#include <vector>
 
 #include "gamestate.h"
 #include "evaluate.h"
 #include "moves.h"
 #include "consts.h"
 
-int Evaluate::positionScore(Gamestate::Bitboards bitboards, bool playingWhite)
+int Evaluate::positionScore(Gamestate::Bitboards *bitboards, bool *playingWhite)
 {
-    uint64_t myPieces = 0;
-    uint64_t theirPieces = 0;
-    uint64_t myPawns = 0;
+    uint64_t myPieces, theirPieces, myPawns, myKing;
 
-    if (playingWhite == true)
+    bool notPlayingWhite = !*playingWhite;
+
+    if (*playingWhite == true)
     {
-        myPieces = bitboards.white;
-        theirPieces = bitboards.black;
-        myPawns = bitboards.p * bitboards.white;
+        myPieces = bitboards->white;
+        theirPieces = bitboards->black;
+        myPawns = bitboards->p & bitboards->white;
+        myKing = bitboards->k & bitboards->white;
     }
     else
     {
-        myPieces = bitboards.black;
-        theirPieces = bitboards.white;
-        myPawns = bitboards.p & bitboards.black;
+        myPieces = bitboards->black;
+        theirPieces = bitboards->white;
+        myPawns = bitboards->p & bitboards->black;
+        myKing = bitboards->k & bitboards->black;
     }
 
-    uint64_t control = myControl(bitboards, playingWhite);
+    uint64_t unsafe = ~myControl(bitboards, playingWhite);
+    uint64_t control = myControl(bitboards, &notPlayingWhite);
+
+    // if (mateCheck(moves, &myKing, &unsafe) == 1)
+    // {
+    //     return INT32_MAX;
+    // }
 
     int totalScore = 
         evaluateMaterial(bitboards, myPieces) - evaluateMaterial(bitboards, theirPieces) + 
         evaluateBoardControl(control) + 
-        evaluateCenterControl(control) + 
-        evaluatePawns(myPawns);
+        evaluateCenterControl(&control) + 
+        evaluatePawns(&myPawns);
 
     return totalScore;
 }
 
-uint64_t Evaluate::myControl(Gamestate::Bitboards bitboards, bool playingWhite)
+uint64_t Evaluate::myControl(Gamestate::Bitboards *bitboards, bool *playingWhite)
 {
 
-    uint64_t myControl, myKing;
-    uint64_t newOccupied = (bitboards.p | bitboards.r | bitboards.n | bitboards.b | bitboards.q | bitboards.k);
+    uint64_t myControl, unsafe, myKing;
+    uint64_t newOccupied = (bitboards->p | bitboards->r | bitboards->n | bitboards->b | bitboards->q | bitboards->k);
     
-    if (playingWhite == true)
+    if (*playingWhite == false)
     {
-        myKing = bitboards.k & bitboards.white;
-        myControl = Moves::unsafeSpaces(
+        myKing = bitboards->k & bitboards->white;
+        unsafe = Moves::unsafeSpaces(
             &newOccupied, 
-            bitboards.p & bitboards.black, 
-            bitboards.r & bitboards.black, 
-            bitboards.n & bitboards.black, 
-            bitboards.b &
-                bitboards.black, 
-            bitboards.q & bitboards.black, 
-            bitboards.k & bitboards.black, 
+            bitboards->p & bitboards->black, 
+            bitboards->r & bitboards->black, 
+            bitboards->n & bitboards->black, 
+            bitboards->b &
+                bitboards->black, 
+            bitboards->q & bitboards->black, 
+            bitboards->k & bitboards->black, 
             &myKing, 
-            &playingWhite
+            playingWhite
         );
     }
     else
     {
-        myKing = bitboards.k & bitboards.black;
+        myKing = bitboards->k & bitboards->black;
         myControl = Moves::unsafeSpaces(
             &newOccupied, 
-            bitboards.p & bitboards.white, 
-            bitboards.r & bitboards.white, 
-            bitboards.n & bitboards.white, 
-            bitboards.b & bitboards.white, 
-            bitboards.q & bitboards.white, 
-            bitboards.k & bitboards.white, 
+            bitboards->p & bitboards->white, 
+            bitboards->r & bitboards->white, 
+            bitboards->n & bitboards->white, 
+            bitboards->b & bitboards->white, 
+            bitboards->q & bitboards->white, 
+            bitboards->k & bitboards->white, 
             &myKing, 
-            &playingWhite
+            playingWhite
         );
     }
 
     return myControl;
 }
 
-int Evaluate::evaluatePawns(uint64_t myPawns)
+bool Evaluate::mateCheck(std::vector <Move> *moves, uint64_t *myKing, uint64_t *unsafe)
+{
+    // logic is if king is in check and there are no possible moves then return INT32_MIN
+    // because it means that we are getting checkmated.  negamax will switch it to INT32_MAX 
+    // for the opponent
+    // just return a bool here though as INT32_MIN can be returned in a check before we 
+    // actually evaluate a position
+    if ((*myKing & *unsafe) > 0)
+    {
+        if (moves->size() == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+int Evaluate::evaluatePawns(uint64_t *myPawns)
 {
     int runningScore = 0;
 
@@ -84,8 +110,8 @@ int Evaluate::evaluatePawns(uint64_t myPawns)
     int extendedCenterPawnScore = 2;
     
     // going to try and encourage it to grab space
-    uint64_t centerPawns = myPawns & Consts::CENTRE;
-    uint64_t extendedCenterPawns = myPawns & Consts::CENTRE;
+    uint64_t centerPawns = *myPawns & Consts::CENTRE;
+    uint64_t extendedCenterPawns = *myPawns & Consts::CENTRE;
 
     while (centerPawns > 0)
     {
@@ -125,13 +151,13 @@ int Evaluate::evaluateBoardControl(uint64_t myControl)
     return runningScore;
 }
 
-int Evaluate::evaluateCenterControl(uint64_t myControl)
+int Evaluate::evaluateCenterControl(uint64_t *myControl)
 {
-    uint64_t centerControl = myControl & Consts::CENTRE;
-    uint64_t extendedCenterControl = myControl & Consts::EXTENDED_CENTRE;
+    uint64_t centerControl = *myControl & Consts::CENTRE;
+    uint64_t extendedCenterControl = *myControl & Consts::EXTENDED_CENTRE;
 
     int runningScore = 0;
-    int centerValue = 2;
+    int centerValue = 3;
     int extendedCenterValue = 1;
 
     while (centerControl > 0)
@@ -156,7 +182,7 @@ int Evaluate::evaluateCenterControl(uint64_t myControl)
 }
 
 // just do a raw material count for now
-int Evaluate::evaluateMaterial(Gamestate::Bitboards bitboards, uint64_t myPieces)
+int Evaluate::evaluateMaterial(Gamestate::Bitboards *bitboards, uint64_t myPieces)
 {
     int PAWN_VALUE = 100;
     int ROOK_VALUE = 500;
@@ -168,7 +194,7 @@ int Evaluate::evaluateMaterial(Gamestate::Bitboards bitboards, uint64_t myPieces
     uint64_t temp = 0;
     int score = 0;
 
-    temp = bitboards.p & myPieces;
+    temp = bitboards->p & myPieces;
     while (temp > 0)
     {
         if (temp & 1)
@@ -178,7 +204,7 @@ int Evaluate::evaluateMaterial(Gamestate::Bitboards bitboards, uint64_t myPieces
         temp = temp >> 1;
     }
 
-    temp = bitboards.r & myPieces;
+    temp = bitboards->r & myPieces;
     while (temp > 0)
     {
         if (temp & 1)
@@ -188,7 +214,7 @@ int Evaluate::evaluateMaterial(Gamestate::Bitboards bitboards, uint64_t myPieces
         temp = temp >> 1;
     }
 
-    temp = bitboards.b & myPieces;
+    temp = bitboards->b & myPieces;
     while (temp > 0)
     {
         if (temp & 1)
@@ -198,7 +224,7 @@ int Evaluate::evaluateMaterial(Gamestate::Bitboards bitboards, uint64_t myPieces
         temp = temp >> 1;
     }
 
-    temp = bitboards.n & myPieces;
+    temp = bitboards->n & myPieces;
     while (temp > 0)
     {
         if (temp & 1)
@@ -208,7 +234,7 @@ int Evaluate::evaluateMaterial(Gamestate::Bitboards bitboards, uint64_t myPieces
         temp = temp >> 1;
     }
 
-    temp = bitboards.q & myPieces;
+    temp = bitboards->q & myPieces;
     while (temp > 0)
     {
         if (temp & 1)
@@ -218,7 +244,7 @@ int Evaluate::evaluateMaterial(Gamestate::Bitboards bitboards, uint64_t myPieces
         temp = temp >> 1;
     }
 
-    temp = bitboards.k & myPieces;
+    temp = bitboards->k & myPieces;
     while (temp > 0)
     {
         if (temp & 1)

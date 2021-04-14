@@ -94,18 +94,16 @@ namespace Search
 
         if (depth == 0)
         {
-            return Evaluate::positionScore(bitboards, playingWhite);
+            return Evaluate::positionScore(&bitboards, &playingWhite);
         }
 
-        std::vector <Move> possibleMoves = Moves::possibleMoves(&bitboards, &playingWhite);
         int val = INT32_MIN;
+        std::vector <Move> possibleMoves = Moves::possibleMoves(&bitboards, &playingWhite);
 
-        // if we find a 0 size possibleMoves vector return it immediately because its found a mate
         if (possibleMoves.size() == 0)
         {
-            return INT32_MIN;
+            return -100000;
         }
-
 
         for (int i = 0; i < possibleMoves.size(); i++)
         {

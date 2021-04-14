@@ -1,6 +1,6 @@
-# UCI Chess Engine
+# Longship
 
-Still doesn't have an official name, but it will one day.
+A UCI compatible chess engine written in C++.
 
 ## Instructions on Playing a GUI Game Against the Engine
 
@@ -19,4 +19,4 @@ make engine
 7. `File --> New Game` to start a new game against the engine.
 8.  On your first move (assuming human as white), Arena will start the engine.
 
-*Note*: There are still a few bugs in the engine.  You can view the debug window while playing with `Engines --> Log - Window` to see the Engine/UCI communication. Helpful to see if the executable has failed.  Note that sometimes if the engine gets hung up Arena will throw an error in this window detecting that the engine is already calculating which is disallowed.  If this happens, just close/open Arena again.  The engine should still be loaded.
+*Note*: You can view the debug window while playing with `Engines --> Log - Window` to see the Engine/UCI communication. Helpful to see if the executable has failed.  Note that UCI standard is still not fully implemented so a restart of Arena or a force stop may be necessary in some situations (evident in the log window).
