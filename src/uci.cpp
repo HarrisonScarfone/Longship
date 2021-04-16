@@ -65,7 +65,7 @@ void UCI::uciGo(){
         {
             gr.writeTurnStart();
             gr.writeBitboards(&bitboards);
-            Search::SearchReturn sr = Search::getMove(bitboards, whiteToPlay);
+            SearchReturn sr = Search::getMove(bitboards, whiteToPlay);
             gr.writeMove(&sr.selectedMove);
             std::cout << "bestmove " << Translator::engineToUCIMove(&sr.selectedMove) << "\n";
             gr.writeTurnEnd();
