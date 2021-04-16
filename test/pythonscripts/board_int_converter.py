@@ -22,10 +22,12 @@ def decimal_to_binary_board(num: int) -> None:
     
 # example usage
 # print("occupied")
-decimal_to_binary_board(10735178551994414071)
-decimal_to_binary_board(10519005769880313856)
-decimal_to_binary_board(288230376152028151)
-decimal_to_binary_board(288230376151711744)
+# decimal_to_binary_board(10735178551994414071)
+# decimal_to_binary_board(10519005769880313856)
+# decimal_to_binary_board(288230376152028151)
+# decimal_to_binary_board(288230376151711744)
+decimal_to_binary_board(536870912)
+decimal_to_binary_board(68719476736)
 
 
 

@@ -59,12 +59,12 @@ std::vector <Move> Moves::possibleMoves(Gamestate::Bitboards *bitboards, bool *p
     if (*playingWhite == 1)
     {
         possibleWhitePawnMoves(&moves, &myPawns, &theirPawns, &capturablePieces, &emptySpaces, &bitboards->enpassant, playingWhite);
-        possibleWhiteCastleMoves(&moves, &occupied, &unsafe, &myKing, &bitboards->wkc, &bitboards->wqc,playingWhite);
+        possibleWhiteCastleMoves(&moves, &occupied, &unsafe, &myKing, &myRook, &bitboards->wkc, &bitboards->wqc,playingWhite);
     }
     else
     {
         possibleBlackPawnMoves(&moves, &myPawns, &theirPawns, &capturablePieces, &emptySpaces, &bitboards->enpassant, playingWhite);
-        possibleBlackCastleMoves(&moves, &occupied, &unsafe, &myKing, &bitboards->bkc, &bitboards->bqc, playingWhite);
+        possibleBlackCastleMoves(&moves, &occupied, &unsafe, &myKing, &myRook, &bitboards->bkc, &bitboards->bqc, playingWhite);
     }
 
         possibleRookMoves(&moves, &occupied, &notMyPieces, myRook, playingWhite);
@@ -155,6 +155,17 @@ void Moves::addPawnMovesToMoveVector(std::vector <Move> *moves, uint64_t *toBoar
                 moves->push_back(thisMove);
                 thisMove.piece = 'N';
                 moves->push_back(thisMove);
+            }
+            else if (type == 'e')
+            {
+                if (*playingWhite == 1)
+                {
+                    thisMove.toBoard = *toBoard << 8;
+                }
+                else
+                {
+                    thisMove.toBoard = *toBoard >> 8;
+                }
             }
             else
             {
@@ -268,11 +279,11 @@ void Moves::possibleWhitePawnMoves(std::vector <Move> *moves, uint64_t *myPawns,
 
     // en passant right
     temp = (*myPawns << 1) & (*theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & *enpassant;
-    addPawnMovesToMoveVector(moves, &temp, 'e', -7, playingWhite);
+    addPawnMovesToMoveVector(moves, &temp, 'e', 0, playingWhite);
 
     // en passant left
     temp = (*myPawns >> 1) & (*theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & *enpassant;
-    addPawnMovesToMoveVector(moves, &temp, 'e', -9, playingWhite);
+    addPawnMovesToMoveVector(moves, &temp, 'e', 0, playingWhite);
 }
 
 void Moves::possibleBlackPawnMoves(std::vector <Move> *moves, uint64_t *myPawns, uint64_t *theirPawns, uint64_t *capturablePeices, uint64_t *emptySpaces, uint64_t *enpassant, bool *playingWhite)
@@ -302,10 +313,10 @@ void Moves::possibleBlackPawnMoves(std::vector <Move> *moves, uint64_t *myPawns,
     addPawnMovesToMoveVector(moves, &temp, 'u', 8, playingWhite);
 
     temp = (*myPawns >> 1) & (*theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & *enpassant;
-    addPawnMovesToMoveVector(moves, &temp, 'e', 7, playingWhite);
+    addPawnMovesToMoveVector(moves, &temp, 'e', 0, playingWhite);
 
     temp = (*myPawns << 1) & (*theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & *enpassant;
-    addPawnMovesToMoveVector(moves, &temp, 'e', 9, playingWhite);
+    addPawnMovesToMoveVector(moves, &temp, 'e', 0, playingWhite);
 }
 
 void Moves::possibleRookMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *notMyPieces, uint64_t r, bool *playingWhite)

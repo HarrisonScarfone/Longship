@@ -31,8 +31,8 @@ namespace Moves
     void possibleQueenMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *notMyPieces, uint64_t q, bool *playingWhite);
     void possibleKnightMoves(std::vector <Move> *moves, uint64_t *notMyPieces, uint64_t n, bool *playingWhite);
     void possibleKingMoves(std::vector <Move> *moves, uint64_t *notMyPieces, uint64_t k, uint64_t *unsafe, bool *playingWhite);
-    void possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *unsafe, uint64_t *myKing, bool *wkc, bool *wqc, bool *playingWhite);
-    void possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *unsafe, uint64_t *myKing, bool *bkc, bool *bqc, bool *playingWhite);
+    void possibleWhiteCastleMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *unsafe, uint64_t *myKing, uint64_t *myRook, bool *wkc, bool *wqc, bool *playingWhite);
+    void possibleBlackCastleMoves(std::vector <Move> *moves, uint64_t *occupied, uint64_t *unsafe, uint64_t *myKing, uint64_t *myRook, bool *bkc, bool *bqc, bool *playingWhite);
     
 
     uint64_t reverseUint64_t(uint64_t in);
