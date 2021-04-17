@@ -6,10 +6,6 @@
 
 namespace Consts
 {
-    // max search depth defined here
-    const int MAX_SEARCH_DEPTH = 5;
-    const int CHECKMATE_SCORE = 10000;
-
     // logic for general moves
     const uint64_t FILE_A = 0x101010101010101L;
     const uint64_t FILE_H = 0x8080808080808080L;
