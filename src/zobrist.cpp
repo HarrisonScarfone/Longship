@@ -131,7 +131,7 @@ void Zobrist::setStartingZobristHash(Gamestate::Bitboards *bitboards, bool *whit
     // hash enpassnt if its set
     for (int i = 0; i < 8; i++)
     {
-        if ((bitboards->enpassant) & Consts::FileMasks8[i] > 1)
+        if ((bitboards->enpassant & Consts::FileMasks8[i]) > 1)
         {
             hashKey = hashKey ^ enpassant[i];
         }
@@ -254,6 +254,8 @@ uint64_t Zobrist::getUpdatedHashKey(Gamestate::Bitboards *bitboards, Move *move,
             break;
         case '4':
             break;
+        default:
+            throw std::invalid_argument("failed to find move type while updating hash key");
     }
     return hash;
 }
