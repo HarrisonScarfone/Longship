@@ -2,8 +2,10 @@
 #define ZOBRIST_H
 
 #include <cstdint>
+#include <map>
 
 #include "gamestate.h"
+#include "moves.h"
 
 class Zobrist
 {
@@ -19,11 +21,15 @@ class Zobrist
 
         uint64_t startingHash;
 
+        std::map<uint64_t, int> lookup;
+
         Zobrist();
 
         void initZobristNumbers();   
-        void setStartingZobristHash(Gamestate::Bitboards *bitboards, bool *whiteToPlay);  
-
+        void setStartingZobristHash(Gamestate::Bitboards *bitboards, bool *whiteToPlay);
+        uint64_t getUpdatedHashKey(Gamestate::Bitboards *bitboards, Move *move, uint64_t hash);
+        uint64_t clearSquare(Gamestate::Bitboards *bitboards, uint64_t *hash, uint64_t *location);
+        uint64_t addPiece(char *piece, uint64_t *location, uint64_t *hash, bool *isWhite);
 };
 
 #endif
