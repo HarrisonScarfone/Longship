@@ -15,12 +15,7 @@ namespace Evaluate
     int evaluateCenterControl(uint64_t *myControl);
     int evaluatePawns(uint64_t *myPawns);
 
-    bool mateCheck(std::vector <Move> *moves, uint64_t *myKing, uint64_t *unsafe);
-
-    uint64_t myControl(Gamestate::Bitboards *bitboards, bool *playingWhite);
+    uint64_t unsafeForMe(Gamestate::Bitboards *bitboards, bool *playingWhite);
 }
 
-
 #endif
-
-

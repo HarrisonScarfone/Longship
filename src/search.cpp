@@ -99,7 +99,19 @@ int Search::negaMaxAB(Gamestate::Bitboards bitboards, int depth, int alpha, int 
 
     if (possibleMoves.size() == 0)
     {
-        return -100000;
+        uint64_t myKing;
+        if (playingWhite == 1)
+        {
+            myKing = bitboards.white & bitboards.k;
+        }
+        else
+        {
+            myKing = bitboards.black & bitboards.k;
+        }
+        if ((Evaluate::unsafeForMe(&bitboards, &playingWhite) & myKing) > 1)
+        {
+            return -100000;
+        }
     }
 
     for (int i = 0; i < possibleMoves.size(); i++)

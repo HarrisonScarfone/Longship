@@ -8,7 +8,7 @@
 
 int Evaluate::positionScore(Gamestate::Bitboards *bitboards, bool *playingWhite)
 {
-    uint64_t myPieces, theirPieces, myPawns, myKing;
+    uint64_t myPieces, theirPieces, myPawns, myKing, theirPawns;
 
     bool notPlayingWhite = !*playingWhite;
 
@@ -18,6 +18,7 @@ int Evaluate::positionScore(Gamestate::Bitboards *bitboards, bool *playingWhite)
         theirPieces = bitboards->black;
         myPawns = bitboards->p & bitboards->white;
         myKing = bitboards->k & bitboards->white;
+        theirPawns = bitboards->black & bitboards->p;
     }
     else
     {
@@ -25,32 +26,28 @@ int Evaluate::positionScore(Gamestate::Bitboards *bitboards, bool *playingWhite)
         theirPieces = bitboards->white;
         myPawns = bitboards->p & bitboards->black;
         myKing = bitboards->k & bitboards->black;
+        theirPawns = bitboards->white & bitboards->p;
     }
 
-    uint64_t unsafe = ~myControl(bitboards, playingWhite);
-    uint64_t control = myControl(bitboards, &notPlayingWhite);
-
-    // if (mateCheck(moves, &myKing, &unsafe) == 1)
-    // {
-    //     return INT32_MAX;
-    // }
+    uint64_t unsafe = unsafeForMe(bitboards, playingWhite);
+    uint64_t control = ~unsafeForMe(bitboards, &notPlayingWhite);
 
     int totalScore = 
         evaluateMaterial(bitboards, myPieces) - evaluateMaterial(bitboards, theirPieces) + 
-        evaluateBoardControl(control) + 
-        evaluateCenterControl(&control) + 
-        evaluatePawns(&myPawns);
+        evaluateBoardControl(control) - evaluateBoardControl(unsafe) + 
+        evaluateCenterControl(&control) + evaluateCenterControl(&unsafe) +
+        evaluatePawns(&myPawns) - evaluatePawns(&theirPawns);
 
     return totalScore;
 }
 
-uint64_t Evaluate::myControl(Gamestate::Bitboards *bitboards, bool *playingWhite)
+uint64_t Evaluate::unsafeForMe(Gamestate::Bitboards *bitboards, bool *playingWhite)
 {
 
     uint64_t myControl, unsafe, myKing;
     uint64_t newOccupied = (bitboards->p | bitboards->r | bitboards->n | bitboards->b | bitboards->q | bitboards->k);
     
-    if (*playingWhite == false)
+    if (*playingWhite == true)
     {
         myKing = bitboards->k & bitboards->white;
         unsafe = Moves::unsafeSpaces(
@@ -59,7 +56,7 @@ uint64_t Evaluate::myControl(Gamestate::Bitboards *bitboards, bool *playingWhite
             bitboards->r & bitboards->black, 
             bitboards->n & bitboards->black, 
             bitboards->b &
-                bitboards->black, 
+            bitboards->black, 
             bitboards->q & bitboards->black, 
             bitboards->k & bitboards->black, 
             &myKing, 
@@ -83,23 +80,6 @@ uint64_t Evaluate::myControl(Gamestate::Bitboards *bitboards, bool *playingWhite
     }
 
     return myControl;
-}
-
-bool Evaluate::mateCheck(std::vector <Move> *moves, uint64_t *myKing, uint64_t *unsafe)
-{
-    // logic is if king is in check and there are no possible moves then return INT32_MIN
-    // because it means that we are getting checkmated.  negamax will switch it to INT32_MAX 
-    // for the opponent
-    // just return a bool here though as INT32_MIN can be returned in a check before we 
-    // actually evaluate a position
-    if ((*myKing & *unsafe) > 0)
-    {
-        if (moves->size() == 0)
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 int Evaluate::evaluatePawns(uint64_t *myPawns)
