@@ -115,3 +115,11 @@ void GameRecorder::writeTurnEnd()
     outfile << "\n----------------------------------------------------------------------------\n\n";
     outfile.close();
 }
+
+void GameRecorder::writePositionHash(uint64_t *hash)
+{
+    std::ofstream outfile;
+    outfile.open("gamerecord.txt", std::ios_base::app);
+    outfile << *hash << "\n";
+    outfile.close();
+}

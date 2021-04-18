@@ -7,6 +7,7 @@
 
 #include "manager.h"
 #include "game.h"
+#include "zobrist.h"
 
 class UCI
 {
@@ -18,6 +19,7 @@ class UCI
 
     public:
         Manager gm;
+        Zobrist z;
 
         UCI();
 
@@ -28,7 +30,7 @@ class UCI
         void newGameHandler();
         void inputPosition();
 
-        State handlePositionToken(std::string token);
+        State handlePositionToken(std::string token, uint64_t *hash);
 
         std::vector<std::string> vectorizeToken(std::string tokenString);
 };

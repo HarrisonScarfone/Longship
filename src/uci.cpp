@@ -14,10 +14,12 @@
 #include "movemaker.h"
 #include "translator.h"
 #include "gamerecorder.h"
+#include "zobrist.h"
 
 UCI::UCI()
 {
     Manager gm = Manager();
+    Zobrist z = Zobrist();
 }
 
 void UCI::uciGo(){
@@ -27,6 +29,8 @@ void UCI::uciGo(){
     std::string move;
     std::string token;
     Gamestate::Bitboards bitboards;
+
+    uint64_t hash = 0;
 
     bool whiteToPlay = true;
 
@@ -56,7 +60,8 @@ void UCI::uciGo(){
         }
         else if (token.substr(0, 8) == "position")
         {
-            State state = handlePositionToken(token.substr(9));
+            hash = z.startingHash;
+            State state = handlePositionToken(token.substr(9), &hash);
             bitboards = state.bitboards;
             whiteToPlay = state.whiteToPlay;
         }
@@ -64,8 +69,9 @@ void UCI::uciGo(){
         else if (token.substr(0, 2) == "go")
         {
             gr.writeTurnStart();
+            gr.writePositionHash(&hash);
             gr.writeBitboards(&bitboards);
-            SearchReturn sr = Search::getMove(bitboards, whiteToPlay);
+            SearchReturn sr = Search::getMove(bitboards, whiteToPlay, &z, &hash);
             gr.writeMove(&sr.selectedMove);
             std::cout << "bestmove " << Translator::engineToUCIMove(&sr.selectedMove) << "\n";
             gr.writeTurnEnd();
@@ -83,6 +89,10 @@ void UCI::initiate()
 
     std::vector<Gamestate::Bitboards> gameHistory;
     gameHistory.push_back(gm.getBitboards());
+
+    bool whiteToPlay = true;
+
+    z.setStartingZobristHash(&gameHistory.at(0), &whiteToPlay);
 
     std::cout << "uciok\n";
 }
@@ -107,7 +117,7 @@ void UCI::inputPosition()
     return;   
 }
 
-UCI::State UCI::handlePositionToken(std::string token)
+UCI::State UCI::handlePositionToken(std::string token, uint64_t *hash)
 {
     std::vector<std::string> tokens = vectorizeToken(token);
     gm.arrayToBitboards();
@@ -130,6 +140,7 @@ UCI::State UCI::handlePositionToken(std::string token)
             std::vector <Move> possibleMoves = Moves::possibleMoves(&bitboards, &whiteToPlay);
 
             Move move = Translator::uciMoveToEngineMove(&possibleMoves, &tokens.at(i), &whiteToPlay);
+            *hash = z.getUpdatedHashKey(&bitboards, &move, *hash);
             bitboards = Movemaker::makeMove(bitboards, &move);
             whiteToPlay = !whiteToPlay;
         }

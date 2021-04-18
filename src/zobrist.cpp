@@ -150,7 +150,7 @@ void Zobrist::setStartingZobristHash(Gamestate::Bitboards *bitboards, bool *whit
     startingHash = hashKey;
 }
 
-uint64_t Zobrist::clearSquare(Gamestate::Bitboards *bitboards, uint64_t *hash, uint64_t *location)
+void Zobrist::clearSquare(Gamestate::Bitboards *bitboards, uint64_t *hash, uint64_t *location)
 {
     int offset;
     if ((bitboards->white & *location) > 0)
@@ -161,11 +161,7 @@ uint64_t Zobrist::clearSquare(Gamestate::Bitboards *bitboards, uint64_t *hash, u
     {
         offset = 6;
     }
-    else
-    {
-        throw std::invalid_argument("Error in hashing piece removal");
-    }
-
+    
     if ((bitboards->p & *location) > 0)
     {
         *hash = *hash ^ piecePosition[0 + offset][Consts::uintToInt.at(*location)];
@@ -192,7 +188,7 @@ uint64_t Zobrist::clearSquare(Gamestate::Bitboards *bitboards, uint64_t *hash, u
     }
 }
 
-uint64_t Zobrist::addPiece(char *piece, uint64_t *location, uint64_t *hash, bool *isWhite)
+void Zobrist::addPiece(char *piece, uint64_t *location, uint64_t *hash, bool *isWhite)
 {
     int offset;
 
@@ -236,26 +232,57 @@ uint64_t Zobrist::getUpdatedHashKey(Gamestate::Bitboards *bitboards, Move *move,
     clearSquare(bitboards, &hash, &move->fromBoard);
     addPiece(&move->piece, &move->toBoard, &hash, &move->isWhite);
 
-    switch (move->type)
+    if (isdigit(move->type) == 1)
     {
-        case 's':
-            break;
-        case 'u':
-            break;
-        case 'd':
-            break;
-        case 'e':
-            break;
-        case '1':
-            break;
-        case '2':
-            break;
-        case '3':
-            break;
-        case '4':
-            break;
-        default:
-            throw std::invalid_argument("failed to find move type while updating hash key");
+        uint64_t clearRook, addRook;
+        char piece = 'R';
+        switch(move->type)
+        {
+            case '1':
+                clearRook = Consts::intToUINT.at(63);
+                addRook = Consts::intToUINT.at(61);
+                break;
+            case '2':
+                clearRook = Consts::intToUINT.at(56);
+                addRook = Consts::intToUINT.at(59);
+                break;
+            case '3':
+                clearRook = Consts::intToUINT.at(7);
+                addRook = Consts::intToUINT.at(5);
+                break;
+            case '4':
+                clearRook = Consts::intToUINT.at(0);
+                addRook = Consts::intToUINT.at(3);
+                break;
+        }
+        clearSquare(bitboards, &hash, &clearRook);
+        addPiece(&piece, &addRook, &hash, &move->isWhite);
+    }
+    else
+    {
+        switch (move->type)
+        {
+            case 's':
+                break;
+            case 'u':
+                break;
+            case 'd':
+                break;
+            case 'e':
+                uint64_t toBoard;
+                if (move->isWhite == 1)
+                {
+                    toBoard = move->toBoard << 8;
+                    clearSquare(bitboards, &hash, &toBoard);
+                }
+                else
+                {
+                    toBoard = move->toBoard >> 8;
+                    clearSquare(bitboards, &hash, &toBoard);
+                }
+            default:
+                throw std::invalid_argument("failed to find move type while updating hash key");
+        }
     }
     return hash;
 }

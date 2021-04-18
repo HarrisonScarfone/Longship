@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstdint>
 
 #include "gamestate.h"
 #include "moves.h"
@@ -19,6 +20,7 @@ class GameRecorder
         void writeTurnInformation(int turnCount);
         void writeTurnStart();
         void writeTurnEnd();
+        void writePositionHash(uint64_t *hash);
 
         std::string getBitboardString(Gamestate::Bitboards *bitboards);
         std::string uint64AsBoard(uint64_t in);

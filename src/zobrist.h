@@ -28,8 +28,8 @@ class Zobrist
         void initZobristNumbers();   
         void setStartingZobristHash(Gamestate::Bitboards *bitboards, bool *whiteToPlay);
         uint64_t getUpdatedHashKey(Gamestate::Bitboards *bitboards, Move *move, uint64_t hash);
-        uint64_t clearSquare(Gamestate::Bitboards *bitboards, uint64_t *hash, uint64_t *location);
-        uint64_t addPiece(char *piece, uint64_t *location, uint64_t *hash, bool *isWhite);
+        void clearSquare(Gamestate::Bitboards *bitboards, uint64_t *hash, uint64_t *location);
+        void addPiece(char *piece, uint64_t *location, uint64_t *hash, bool *isWhite);
 };
 
 #endif
