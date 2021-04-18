@@ -33,7 +33,7 @@ int Evaluate::positionScore(Gamestate::Bitboards *bitboards, bool *playingWhite)
     uint64_t control = ~unsafeForMe(bitboards, &notPlayingWhite);
 
     int totalScore = 
-        evaluateMaterial(bitboards, myPieces) - evaluateMaterial(bitboards, theirPieces); //+ 
+        evaluateMaterial(bitboards, myPieces) - evaluateMaterial(bitboards, theirPieces) + 
         evaluateBoardControl(control) - evaluateBoardControl(unsafe) + 
         evaluateCenterControl(&control) + evaluateCenterControl(&unsafe) +
         evaluatePawns(&myPawns) - evaluatePawns(&theirPawns);

@@ -161,7 +161,7 @@ void Zobrist::clearSquare(Gamestate::Bitboards *bitboards, uint64_t *hash, uint6
     {
         offset = 6;
     }
-    
+
     if ((bitboards->p & *location) > 0)
     {
         *hash = *hash ^ piecePosition[0 + offset][Consts::uintToInt.at(*location)];
@@ -231,6 +231,10 @@ uint64_t Zobrist::getUpdatedHashKey(Gamestate::Bitboards *bitboards, Move *move,
     clearSquare(bitboards, &hash, &move->toBoard);
     clearSquare(bitboards, &hash, &move->fromBoard);
     addPiece(&move->piece, &move->toBoard, &hash, &move->isWhite);
+
+    // flip the turn
+    hash = hash ^ whosTurn[1];
+    hash = hash ^ whosTurn[0];
 
     if (isdigit(move->type) == 1)
     {

@@ -18,7 +18,7 @@
 SearchReturn Search::getMove(Gamestate::Bitboards bitboards, bool playingWhite, Zobrist *z, uint64_t *hash)
     {
 
-        int depth = 6;
+        int depth = 5;
 
         Move selectedMove;
         std::vector <Move> bestMoves;
@@ -119,17 +119,17 @@ int Search::negaMaxAB(Gamestate::Bitboards bitboards, int depth, int alpha, int 
     for (int i = 0; i < possibleMoves.size(); i++)
     {
         uint64_t key = z->getUpdatedHashKey(&bitboards, &possibleMoves.at(i), hash);
-        Gamestate::Bitboards variation = Movemaker::makeMove(bitboards, &possibleMoves.at(i));
 
         if (z->lookup.find(key) != z->lookup.end())
         {
-            return z->lookup.at(key);
+            moveScore = z->lookup.at(key);
         }
-
-        moveScore = -1 * negaMaxAB(variation, depth - 1, -1 * beta, -1 * alpha, !playingWhite, z, key);
-
-        z->lookup.insert({key, moveScore});
-
+        else
+        {
+            Gamestate::Bitboards variation = Movemaker::makeMove(bitboards, &possibleMoves.at(i));
+            moveScore = -1 * negaMaxAB(variation, depth - 1, -1 * beta, -1 * alpha, !playingWhite, z, key);
+            z->lookup.insert({key, moveScore});
+        }
         if (moveScore > val)
         {
             val = moveScore;
