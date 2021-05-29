@@ -12,7 +12,6 @@ class GameRecorder
 {
     public:
         GameRecorder();
-        ~GameRecorder();
 
         void writeBitboards(Gamestate::Bitboards *bitboards);
         void writeMove(Move *move);

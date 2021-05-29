@@ -13,10 +13,6 @@ GameRecorder::GameRecorder()
     outfile.close();
 }
 
-GameRecorder::~GameRecorder()
-{
-}
-
 void GameRecorder::writeBitboards(Gamestate::Bitboards *bitboards)
 {
     std::ofstream outfile;
