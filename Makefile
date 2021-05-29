@@ -1,7 +1,7 @@
 CC := g++
 
-ENGINE_NAME := engine
-DEBUG_ENGINE := dengine
+ENGINE_NAME := longship
+DEBUG_ENGINE := longship
 PERFT := perft
 
 ENGINE_MAIN := src/main.cpp
