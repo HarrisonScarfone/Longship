@@ -4,11 +4,8 @@
 # text file for notes
 notes.txt
 
-# dont push our working executeable
-main
-
-# dont push shell usage utility
-run.sh
+# dont need anything in build
+build/*
 
 #dont push a gamerecord if one exists
 gamerecord.txt
