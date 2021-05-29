@@ -8,10 +8,11 @@ The engine is barebones UCI complient which means it can use UCI GUIs.  I recomm
 
 1. Get a copy of Arena (above).
 2. Pull this repo.
-3. Build an executable called `main` with:
+3. Install the engine with:
 ```shell
-cd engine
-make engine
+cd <engine location>
+chmod +x install.sh
+./install.sh
 ```
 4. Open Arena and select top menu bar options `Engines --> Install New Engine`.
 5. Select the `longship` executable from inside the `engine/build` folder.
@@ -25,13 +26,11 @@ make engine
 
 You can compile a `perft` (Preformance Testing) executable with:
 ```shell
-cd engine
 make perft
 ```
 It will calculate the number of moves it sees at a given depth.
 
 Compile a `longship` executeable with debug flags using:
 ```shell
-cd engine
 make dengine
 ```

@@ -4,8 +4,10 @@
 # text file for notes
 notes.txt
 
-# dont need anything in build
-build/*
+# dont need anything weve built or a game record
+longship
+perft
+gamerecord.txt
 
 #dont push a gamerecord if one exists
 gamerecord.txt
