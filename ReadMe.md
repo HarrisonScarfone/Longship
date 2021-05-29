@@ -24,7 +24,12 @@ chmod +x install.sh
 
 ## Other Usage
 
-You can compile a `perft` (Preformance Testing) executable with:
+Build a regular `longship` executeable with:
+```shell
+make engine
+```
+
+Compile a `perft` (Preformance Testing) executable with:
 ```shell
 make perft
 ```
