@@ -9,14 +9,14 @@
 GameRecorder::GameRecorder()
 {
     std::ofstream outfile;
-    outfile.open("gamerecord.txt");
+    outfile.open("..build/gamerecord.txt");
     outfile.close();
 }
 
 void GameRecorder::writeBitboards(Gamestate::Bitboards *bitboards)
 {
     std::ofstream outfile;
-    outfile.open("gamerecord.txt", std::ios_base::app);
+    outfile.open("..build/gamerecord.txt", std::ios_base::app);
     outfile << getBitboardString(bitboards);
     outfile.close();
 }
@@ -24,7 +24,7 @@ void GameRecorder::writeBitboards(Gamestate::Bitboards *bitboards)
 void GameRecorder::writeMove(Move *move)
 {
     std::ofstream outfile;
-    outfile.open("gamerecord.txt", std::ios_base::app);
+    outfile.open("..build/gamerecord.txt", std::ios_base::app);
     outfile << moveAsString(move);
     outfile.close();
 }
@@ -32,7 +32,7 @@ void GameRecorder::writeMove(Move *move)
 void GameRecorder::writeTurnInformation(int turnCount)
 {
     std::ofstream outfile;
-    outfile.open("gamerecord.txt", std::ios_base::app);
+    outfile.open("..build/gamerecord.txt", std::ios_base::app);
     outfile << "\n" << std::to_string(turnCount) << "\n\n";
     outfile.close();
 }
@@ -99,7 +99,7 @@ std::string GameRecorder::uint64AsBoard(uint64_t in)
 void GameRecorder::writeTurnStart()
 {
     std::ofstream outfile;
-    outfile.open("gamerecord.txt", std::ios_base::app);
+    outfile.open("..build/gamerecord.txt", std::ios_base::app);
     outfile << "\n----------------------------------------------------------------------------\n\n";
     outfile.close();
 }
@@ -107,7 +107,7 @@ void GameRecorder::writeTurnStart()
 void GameRecorder::writeTurnEnd()
 {
     std::ofstream outfile;
-    outfile.open("gamerecord.txt", std::ios_base::app);
+    outfile.open("..build/gamerecord.txt", std::ios_base::app);
     outfile << "\n----------------------------------------------------------------------------\n\n";
     outfile.close();
 }
