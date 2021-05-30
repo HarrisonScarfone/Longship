@@ -31,6 +31,6 @@ perft: $(PERFT_MAIN) $(src) $(dep)
 	$(CC) -o $(OUTPUT_DIR)/$(PERFT) $(PERFT_MAIN) $(src) $(dep)
 
 clean:
-	rm -rf build/* && touch build/.placeholder
+	rm -rf build/*
 
 
