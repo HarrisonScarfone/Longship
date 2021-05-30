@@ -26,9 +26,11 @@ def decimal_to_binary_board(num: int) -> None:
 # decimal_to_binary_board(10519005769880313856)
 # decimal_to_binary_board(288230376152028151)
 # decimal_to_binary_board(288230376151711744)
-decimal_to_binary_board(268435456)
-decimal_to_binary_board(524288)
-decimal_to_binary_board(578721382704613384)
+decimal_to_binary_board(33554432)
+decimal_to_binary_board(33619968)
+decimal_to_binary_board(4278190080)
+decimal_to_binary_board(9187201950435737471)
+decimal_to_binary_board(144680345676153346)
 
 
 
@@ -98,12 +100,11 @@ def binary_to_decimal(numstr) -> None:
 # must feed argument as a string
 # binary_to_decimal("0000000000000000100000000000000000000000000000001111111111100000")
 
-import itertools
+# import itertools
 
-tst = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]
+# tst = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]
 
-print(test.length())
 
-a = list(itertools.permutations(tst))
+# a = list(itertools.permutations(tst))
 
-print(a.length())
+# print(a.length())

@@ -166,6 +166,7 @@ void Moves::addPawnMovesToMoveVector(std::vector <Move> *moves, uint64_t *toBoar
                 {
                     thisMove.toBoard = *toBoard >> 8;
                 }
+                moves->push_back(thisMove);
             }
             else
             {
@@ -279,7 +280,7 @@ void Moves::possibleWhitePawnMoves(std::vector <Move> *moves, uint64_t *myPawns,
 
     // en passant right
     temp = (*myPawns << 1) & (*theirPawns) & Consts::RANK_5 & ~Consts::FILE_A & *enpassant;
-    addPawnMovesToMoveVector(moves, &temp, 'e', 0, playingWhite);
+    addPawnMovesToMoveVector(moves, &temp, 'e', -1, playingWhite);
 
     // en passant left
     temp = (*myPawns >> 1) & (*theirPawns) & Consts::RANK_5 & ~Consts::FILE_H & *enpassant;

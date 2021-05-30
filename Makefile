@@ -30,6 +30,9 @@ dengine: $(ENGINE_MAIN) $(src) $(dep)
 perft: $(PERFT_MAIN) $(src) $(dep)
 	$(CC) -o $(OUTPUT_DIR)/$(PERFT) $(PERFT_MAIN) $(src) $(dep)
 
+dperft: $(PERFT_MAIN) $(src) $(dep)
+	$(CC) $(C2FLAGS) -o $(OUTPUT_DIR)/$(PERFT) $(PERFT_MAIN) $(src) $(dep)
+
 clean:
 	rm -rf build/*
 

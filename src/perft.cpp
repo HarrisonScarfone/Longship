@@ -18,21 +18,18 @@ struct PerftData
     int kingMoves = 0;
     int castleMoves = 0;
     int enpassant = 0;
-    int checks = 0;
     int pawnDoubleMoves = 0;
-    int checkmates = 0;
 };
 
 void perftDataToStdout(PerftData thisRun);
 void analyzeMove(Move *move, Gamestate::Bitboards bitboards, bool playingWhite, bool hasMoves, PerftData *pd);
-void analyzeChecks(PerftData *pd, Gamestate::Bitboards bitboards, bool playingWhite, bool hasMoves);
 void perft(Gamestate::Bitboards bitboards, int depth, bool playingWhite, PerftData *pd);
 PerftData perft_handler(Gamestate::Bitboards bitboards, bool whiteToPlay, int depth);
 
 int main(){
 
     bool whiteToPlay = true;
-    int testDepth = 3;
+    int testDepth = 2;
 
     std::cout << "Depth: " << testDepth << "\n";
 
@@ -58,7 +55,6 @@ PerftData perft_handler(Gamestate::Bitboards bitboards, bool whiteToPlay, int de
     {
         Gamestate::Bitboards variation = Movemaker::makeMove(bitboards, &possibleMoves.at(i));
         analyzeMove(&possibleMoves.at(i), bitboards, !whiteToPlay, true, &pd);
-        pd.totalNodes++;
         perft(variation, depth - 1, !whiteToPlay, &pd);     
     }
 
@@ -70,23 +66,19 @@ void perft(Gamestate::Bitboards bitboards, int depth, bool playingWhite, PerftDa
 {
     if (depth == 0)
     {
+        pd->totalNodes++;
         return;
     }
 
     std::vector <Move> possibleMoves = Moves::possibleMoves(&bitboards, &playingWhite);
 
-    if (possibleMoves.size() == 0)
-    {
-        analyzeChecks(pd, bitboards, playingWhite, false);
-    } 
-
     for (int i = 0; i < possibleMoves.size(); i++)
-    {
-        pd->totalNodes++;   
+    {  
         Gamestate::Bitboards variation = Movemaker::makeMove(bitboards, &possibleMoves.at(i));
         analyzeMove(&possibleMoves.at(i), bitboards, !playingWhite, true, pd);
         perft(variation, depth - 1, !playingWhite, pd);
     }
+
 }
 
 void analyzeMove(Move *move, Gamestate::Bitboards bitboards, bool playingWhite, bool hasMoves, PerftData *pd)
@@ -139,31 +131,6 @@ void analyzeMove(Move *move, Gamestate::Bitboards bitboards, bool playingWhite, 
             break;
     }
 
-    analyzeChecks(pd, bitboards, playingWhite, hasMoves);
-
-}
-
-void analyzeChecks(PerftData *pd, Gamestate::Bitboards bitboards, bool playingWhite, bool hasMoves)
-{
-    uint64_t myKing;
-    if (playingWhite)
-    {
-        myKing = bitboards.k & bitboards.white;
-    }
-    else
-    {
-        myKing = bitboards.k & bitboards.black;
-    }
-
-    if ((Evaluate::unsafeForMe(&bitboards, &playingWhite) & myKing) > 1 && !hasMoves)
-    {
-        pd->checkmates++;
-    }
-
-        if ((Evaluate::unsafeForMe(&bitboards, &playingWhite) & myKing) > 1)
-    {
-        pd->checks++;
-    } 
 }
 
 void perftDataToStdout(PerftData thisRun)
@@ -178,6 +145,4 @@ void perftDataToStdout(PerftData thisRun)
     std::cout << "Castle Moves: " << thisRun.castleMoves << "\n";
     std::cout << "Pawn Double Moves: " << thisRun.pawnDoubleMoves << "\n";
     std::cout << "Enpassants: " << thisRun.enpassant << "\n";
-    std::cout << "Checks: " << thisRun.checks << "\n";
-    std::cout << "Checkmates: " << thisRun.checkmates << "\n";
 }
