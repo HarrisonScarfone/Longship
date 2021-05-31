@@ -129,6 +129,11 @@ int Search::negaMaxAB(Gamestate::Bitboards bitboards, int depth, int alpha, int 
         {
             alpha = moveScore;
         }
+
+        if (alpha > beta)
+        {
+            break;
+        }
     }
     return val;
 }

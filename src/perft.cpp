@@ -29,7 +29,7 @@ PerftData perft_handler(Gamestate::Bitboards bitboards, bool whiteToPlay, int de
 int main(){
 
     bool whiteToPlay = true;
-    int testDepth = 2;
+    int testDepth = 6;
 
     std::cout << "Depth: " << testDepth << "\n";
 
