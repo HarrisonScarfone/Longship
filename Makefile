@@ -17,7 +17,7 @@ src := $(filter-out src/main.cpp, $(src))
 src := $(filter-out src/perft.cpp, $(src))
 dep := $(wildcard src/*.h)
 
-.PHONY: engine optengine dengine perft clean
+.PHONY: engine optengine dengine perft dperft clean
 engine: $(ENGINE_MAIN) $(src) $(dep)
 	$(CC) -o $(OUTPUT_DIR)/$(ENGINE_NAME) $(ENGINE_MAIN) $(src) $(dep)
 
